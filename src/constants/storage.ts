@@ -3,4 +3,5 @@ export const STORAGE_KEYS = {
   LAST_READ: '@ramam/last-read',
   KANDA_PROGRESS: '@ramam/kanda-progress',
   BOOKMARKS: '@ramam/bookmarks',
+  RECENT_SEARCHES: '@ramam/recent-searches',
 } as const;

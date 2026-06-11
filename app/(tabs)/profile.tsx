@@ -30,7 +30,7 @@ export default function ProfileScreen() {
             Guest Reader
           </Typography>
           <Typography variant="caption" className="mt-2">
-            Sign in arrives in Phase 2. Progress and bookmarks are saved on this device.
+            Sign in arrives in a later phase. Progress, bookmarks, and search history stay on this device.
           </Typography>
         </View>
 
@@ -63,7 +63,7 @@ export default function ProfileScreen() {
         <Divider />
 
         <Typography variant="caption" className="text-center">
-          {APP_NAME} · Phase 1
+          {APP_NAME} · Phase 2
         </Typography>
       </ScrollView>
     </ScreenShell>

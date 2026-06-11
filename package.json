@@ -7,7 +7,9 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "generate:content": "node scripts/generate-content-map.mjs"
+    "generate:content": "node scripts/generate-content-map.mjs",
+    "generate:search": "node scripts/generate-search-index.mjs",
+    "generate": "npm run generate:content && npm run generate:search"
   },
   "dependencies": {
     "@expo-google-fonts/eb-garamond": "^0.4.2",
@@ -22,6 +24,7 @@
     "expo-router": "~6.0.24",
     "expo-splash-screen": "~31.0.13",
     "expo-status-bar": "~3.0.9",
+    "minisearch": "^7.2.0",
     "nativewind": "^4.1.23",
     "react": "19.1.0",
     "react-native": "0.81.5",

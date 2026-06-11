@@ -5,7 +5,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Typography } from '@/components/ui/Typography';
 import { KANDAS } from '@/constants/kandas';
+import { THEME_COLORS } from '@/constants/theme';
 import { useBookmarks } from '@/hooks/useBookmarks';
+import { useTheme } from '@/hooks/useTheme';
 import type { TKanda } from '@/types/content';
 
 type ReadingHeaderProps = {
@@ -17,6 +19,8 @@ export function ReadingHeader({ kanda, sarga }: ReadingHeaderProps) {
   const insets = useSafeAreaInsets();
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const saved = isBookmarked(kanda, sarga);
+  const { isDark } = useTheme();
+  const colors = isDark ? THEME_COLORS.dark : THEME_COLORS.light;
   const kandaName = KANDAS.find((item) => item.id === kanda)?.name ?? kanda;
 
   return (
@@ -26,7 +30,7 @@ export function ReadingHeader({ kanda, sarga }: ReadingHeaderProps) {
           className="h-10 w-10 items-center justify-center active:opacity-60"
           onPress={() => router.back()}
         >
-          <Ionicons name="chevron-back" size={24} color="#181512" />
+          <Ionicons name="chevron-back" size={24} color={colors.icon} />
         </Pressable>
 
         <Typography variant="label-sm" className="normal-case tracking-widest">
@@ -37,7 +41,7 @@ export function ReadingHeader({ kanda, sarga }: ReadingHeaderProps) {
           className="h-10 w-10 items-center justify-center active:opacity-60"
           onPress={() => toggleBookmark(kanda, sarga)}
         >
-          <Ionicons name={saved ? 'bookmark' : 'bookmark-outline'} size={22} color="#181512" />
+          <Ionicons name={saved ? 'bookmark' : 'bookmark-outline'} size={22} color={colors.icon} />
         </Pressable>
       </View>
     </View>

@@ -5,7 +5,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Typography } from '@/components/ui/Typography';
 import { APP_NAME } from '@/constants/kandas';
+import { THEME_COLORS } from '@/constants/theme';
 import { useBookmarks } from '@/hooks/useBookmarks';
+import { useDrawer } from '@/hooks/useDrawer';
+import { useTheme } from '@/hooks/useTheme';
 
 type AppHeaderProps = {
   showMenu?: boolean;
@@ -15,6 +18,9 @@ type AppHeaderProps = {
 export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProps) {
   const insets = useSafeAreaInsets();
   const { bookmarks } = useBookmarks();
+  const { openDrawer } = useDrawer();
+  const { isDark } = useTheme();
+  const colors = isDark ? THEME_COLORS.dark : THEME_COLORS.light;
 
   return (
     <View
@@ -27,9 +33,9 @@ export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProp
             <Pressable
               accessibilityLabel="Menu"
               className="h-10 w-10 items-center justify-center active:opacity-60"
-              onPress={() => {}}
+              onPress={openDrawer}
             >
-              <Ionicons name="menu-outline" size={24} color="#181512" />
+              <Ionicons name="menu-outline" size={24} color={colors.icon} />
             </Pressable>
           ) : null}
         </View>
@@ -49,7 +55,7 @@ export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProp
                 <Ionicons
                   name={bookmarks.length > 0 ? 'bookmark' : 'bookmark-outline'}
                   size={22}
-                  color="#181512"
+                  color={colors.icon}
                 />
               </Pressable>
               <Pressable
@@ -57,7 +63,7 @@ export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProp
                 className="h-10 w-10 items-center justify-center active:opacity-60"
                 onPress={() => router.push('/(tabs)/search' as never)}
               >
-                <Ionicons name="search-outline" size={22} color="#181512" />
+                <Ionicons name="search-outline" size={22} color={colors.icon} />
               </Pressable>
             </>
           ) : null}

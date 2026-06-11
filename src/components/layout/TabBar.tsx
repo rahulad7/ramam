@@ -5,6 +5,8 @@ import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Typography } from '@/components/ui/Typography';
+import { THEME_COLORS } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 
 type TabConfig = {
   name: string;
@@ -23,6 +25,8 @@ const TABS: TabConfig[] = [
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const segments = useSegments();
+  const { isDark } = useTheme();
+  const colors = isDark ? THEME_COLORS.dark : THEME_COLORS.light;
   const focusedRouteName = state.routes[state.index]?.name;
 
   const inNestedLibrary =
@@ -43,7 +47,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
           if (!route) return null;
 
           const isFocused = focusedRouteName === tab.name;
-          const color = isFocused ? '#181512' : '#7e756f';
+          const color = isFocused ? colors.icon : colors.iconMuted;
 
           const onPress = () => {
             const event = navigation.emit({

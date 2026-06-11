@@ -6,17 +6,17 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: '#fdf8f7',
-        surface: '#fdf8f7',
-        'surface-low': '#f7f3f1',
-        'surface-container': '#f1edec',
-        'surface-high': '#ece7e6',
-        'on-surface': '#1c1b1b',
-        'on-surface-variant': '#4d4540',
-        primary: '#181512',
-        'on-primary': '#ffffff',
-        outline: '#7e756f',
-        'outline-variant': '#cfc4bd',
+        background: 'rgb(var(--color-background) / <alpha-value>)',
+        surface: 'rgb(var(--color-background) / <alpha-value>)',
+        'surface-low': 'rgb(var(--color-surface-low) / <alpha-value>)',
+        'surface-container': 'rgb(var(--color-surface-container) / <alpha-value>)',
+        'surface-high': 'rgb(var(--color-surface-high) / <alpha-value>)',
+        'on-surface': 'rgb(var(--color-on-surface) / <alpha-value>)',
+        'on-surface-variant': 'rgb(var(--color-on-surface-variant) / <alpha-value>)',
+        primary: 'rgb(var(--color-primary) / <alpha-value>)',
+        'on-primary': 'rgb(var(--color-on-primary) / <alpha-value>)',
+        outline: 'rgb(var(--color-outline) / <alpha-value>)',
+        'outline-variant': 'rgb(var(--color-outline-variant) / <alpha-value>)',
         error: '#ba1a1a',
       },
       fontFamily: {

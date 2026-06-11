@@ -6,7 +6,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
 import { KANDAS } from '@/constants/kandas';
+import { THEME_COLORS } from '@/constants/theme';
 import { useKandaChapters } from '@/hooks/useKandaChapters';
+import { useTheme } from '@/hooks/useTheme';
 import type { TKanda } from '@/types/content';
 
 export default function KandaScreen() {
@@ -14,6 +16,8 @@ export default function KandaScreen() {
   const kandaMeta = KANDAS.find((item) => item.id === kanda);
   const { chapters } = useKandaChapters(kanda);
   const insets = useSafeAreaInsets();
+  const { isDark } = useTheme();
+  const colors = isDark ? THEME_COLORS.dark : THEME_COLORS.light;
 
   if (!kandaMeta) {
     return (
@@ -28,7 +32,7 @@ export default function KandaScreen() {
       <View className="border-b border-outline-variant bg-background" style={{ paddingTop: insets.top }}>
         <View className="h-14 flex-row items-center px-2">
           <Pressable className="h-10 w-10 items-center justify-center" onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={24} color="#181512" />
+            <Ionicons name="chevron-back" size={24} color={colors.icon} />
           </Pressable>
           <Typography variant="label-sm" className="ml-2 normal-case tracking-widest">
             {kandaMeta.name}

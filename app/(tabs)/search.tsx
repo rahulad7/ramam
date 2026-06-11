@@ -1,36 +1,123 @@
-import { ScrollView, TextInput, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, TextInput, View } from 'react-native';
 
+import { SearchResultCard } from '@/components/search/SearchResultCard';
 import { ScreenShell } from '@/components/layout/ScreenShell';
 import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
+import { KANDAS } from '@/constants/kandas';
+import { useRecentSearches } from '@/hooks/useRecentSearches';
+import { useSearch } from '@/hooks/useSearch';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function SearchScreen() {
+  const [query, setQuery] = useState('');
+  const { results, isSearching, hasQuery } = useSearch(query);
+  const { recent, addRecent, clearRecent } = useRecentSearches();
+  const { isDark } = useTheme();
+
+  const placeholderColor = isDark ? '#a89b94' : '#7e756f';
+  const inputClass = isDark
+    ? 'font-franklin text-base text-on-surface'
+    : 'font-franklin text-base text-on-surface';
+
+  function handleSubmit() {
+    if (query.trim()) {
+      addRecent(query.trim());
+    }
+  }
+
   return (
     <ScreenShell>
-      <ScrollView className="flex-1" contentContainerClassName="px-5 pb-10">
+      <ScrollView
+        className="flex-1"
+        contentContainerClassName="px-5 pb-10"
+        keyboardShouldPersistTaps="handled"
+      >
         <Typography variant="label-sm">Discover</Typography>
         <Typography variant="headline" className="mt-2">
           Search the Epic
         </Typography>
         <Typography variant="caption" className="mt-3 leading-6">
-          Full-text search across all 534 chapters arrives in a later phase. For now, browse by kanda
-          in the Library tab.
+          Search all {KANDAS.reduce((sum, k) => sum + k.chapterCount, 0)} chapters by title, summary, or
+          verse text.
         </Typography>
 
         <Divider />
 
         <View className="border border-outline-variant bg-surface-low px-4 py-3">
           <TextInput
-            editable={false}
+            value={query}
+            onChangeText={setQuery}
+            onSubmitEditing={handleSubmit}
             placeholder="Search chapters, verses, commentary..."
-            placeholderTextColor="#7e756f"
-            className="font-franklin text-base text-on-surface"
+            placeholderTextColor={placeholderColor}
+            className={inputClass}
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="search"
+            clearButtonMode="while-editing"
           />
         </View>
 
-        <Typography variant="caption" className="mt-4 text-center">
-          Coming soon in Phase 2
-        </Typography>
+        {!hasQuery && recent.length > 0 ? (
+          <View className="mt-6">
+            <View className="mb-3 flex-row items-center justify-between">
+              <Typography variant="label-sm">Recent</Typography>
+              <Pressable onPress={clearRecent}>
+                <Typography variant="caption">Clear</Typography>
+              </Pressable>
+            </View>
+            <View className="flex-row flex-wrap gap-2">
+              {recent.map((item) => (
+                <Pressable
+                  key={item}
+                  className="border border-outline-variant px-3 py-2 active:bg-surface-container"
+                  onPress={() => setQuery(item)}
+                >
+                  <Typography variant="caption" className="normal-case">
+                    {item}
+                  </Typography>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        ) : null}
+
+        {hasQuery ? (
+          <View className="mt-6">
+            {isSearching ? (
+              <ActivityIndicator className="mt-4" />
+            ) : results.length === 0 ? (
+              <Typography variant="body" className="mt-2 text-on-surface-variant">
+                No chapters matched &quot;{query.trim()}&quot;. Try a shorter phrase or another spelling.
+              </Typography>
+            ) : (
+              <>
+                <Typography variant="label-sm" className="mb-4">
+                  {results.length} result{results.length === 1 ? '' : 's'}
+                </Typography>
+                <View className="gap-3">
+                  {results.map((result) => (
+                    <SearchResultCard
+                      key={result.id}
+                      result={result}
+                      onPress={() => addRecent(query.trim())}
+                    />
+                  ))}
+                </View>
+              </>
+            )}
+          </View>
+        ) : query.trim().length === 1 ? (
+          <Typography variant="caption" className="mt-6 leading-6">
+            Type at least 2 characters to search.
+          </Typography>
+        ) : (
+          <Typography variant="caption" className="mt-6 leading-6">
+            Try names like Rama, Sita, Hanuman, or themes like dharma and exile.
+          </Typography>
+        )}
       </ScrollView>
     </ScreenShell>
   );
