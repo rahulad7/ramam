@@ -8,12 +8,15 @@ import { StatusBar } from 'expo-status-bar';
 
 import { AnimatedSplash } from '@/components/layout/AnimatedSplash';
 import { MenuDrawer } from '@/components/layout/MenuDrawer';
+import { OnboardingOverlay } from '@/components/layout/OnboardingOverlay';
 import { THEME_COLORS } from '@/constants/theme';
 import { useAppFonts } from '@/hooks/useFonts';
 import { useTheme } from '@/hooks/useTheme';
 import { BookmarksProvider } from '@/providers/BookmarksProvider';
 import { DrawerProvider } from '@/providers/DrawerProvider';
+import { HighlightsProvider } from '@/providers/HighlightsProvider';
 import { ReadingProgressProvider } from '@/providers/ReadingProgressProvider';
+import { ReadingSettingsProvider } from '@/providers/ReadingSettingsProvider';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 
 SplashScreen.preventAutoHideAsync();
@@ -52,6 +55,7 @@ function RootLayoutNav() {
           <Stack.Screen name="(tabs)" />
         </Stack>
         <MenuDrawer />
+        <OnboardingOverlay />
         {showSplash ? <AnimatedSplash /> : null}
       </View>
     </DrawerProvider>
@@ -61,11 +65,15 @@ function RootLayoutNav() {
 export default function RootLayout() {
   return (
     <ThemeProvider>
-      <ReadingProgressProvider>
-        <BookmarksProvider>
-          <RootLayoutNav />
-        </BookmarksProvider>
-      </ReadingProgressProvider>
+      <ReadingSettingsProvider>
+        <ReadingProgressProvider>
+          <BookmarksProvider>
+            <HighlightsProvider>
+              <RootLayoutNav />
+            </HighlightsProvider>
+          </BookmarksProvider>
+        </ReadingProgressProvider>
+      </ReadingSettingsProvider>
     </ThemeProvider>
   );
 }

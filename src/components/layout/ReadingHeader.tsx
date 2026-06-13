@@ -13,9 +13,10 @@ import type { TKanda } from '@/types/content';
 type ReadingHeaderProps = {
   kanda: TKanda;
   sarga: string;
+  onShare?: () => void;
 };
 
-export function ReadingHeader({ kanda, sarga }: ReadingHeaderProps) {
+export function ReadingHeader({ kanda, sarga, onShare }: ReadingHeaderProps) {
   const insets = useSafeAreaInsets();
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const saved = isBookmarked(kanda, sarga);
@@ -37,12 +38,22 @@ export function ReadingHeader({ kanda, sarga }: ReadingHeaderProps) {
           {kandaName} · Ch. {sarga}
         </Typography>
 
-        <Pressable
-          className="h-10 w-10 items-center justify-center active:opacity-60"
-          onPress={() => toggleBookmark(kanda, sarga)}
-        >
-          <Ionicons name={saved ? 'bookmark' : 'bookmark-outline'} size={22} color={colors.icon} />
-        </Pressable>
+        <View className="flex-row items-center">
+          {onShare ? (
+            <Pressable
+              className="h-10 w-10 items-center justify-center active:opacity-60"
+              onPress={onShare}
+            >
+              <Ionicons name="share-outline" size={22} color={colors.icon} />
+            </Pressable>
+          ) : null}
+          <Pressable
+            className="h-10 w-10 items-center justify-center active:opacity-60"
+            onPress={() => toggleBookmark(kanda, sarga)}
+          >
+            <Ionicons name={saved ? 'bookmark' : 'bookmark-outline'} size={22} color={colors.icon} />
+          </Pressable>
+        </View>
       </View>
     </View>
   );

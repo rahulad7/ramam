@@ -19,9 +19,12 @@ type MenuItem = {
 const MENU_ITEMS: MenuItem[] = [
   { label: 'Home', icon: 'home-outline', href: '/(tabs)' },
   { label: 'Library', icon: 'book-outline', href: '/(tabs)/library' },
+  { label: 'Daily Wisdom', icon: 'sunny-outline', href: '/(tabs)/daily-wisdom' },
   { label: 'Search', icon: 'search-outline', href: '/(tabs)/search' },
   { label: 'Bookmarks', icon: 'bookmark-outline', href: '/(tabs)/bookmarks' },
+  { label: 'Highlights', icon: 'color-fill-outline', href: '/(tabs)/highlights' },
   { label: 'Account', icon: 'person-outline', href: '/(tabs)/profile' },
+  { label: 'Settings', icon: 'settings-outline', href: '/(tabs)/settings' },
 ];
 
 export function MenuDrawer() {
@@ -70,19 +73,15 @@ export function MenuDrawer() {
 
             <Pressable
               className="flex-row items-center gap-3 px-3 py-3 active:bg-surface-low"
-              onPress={() => {
-                toggleTheme();
-              }}
+              onPress={toggleTheme}
             >
               <Ionicons name={isDark ? 'sunny-outline' : 'moon-outline'} size={20} color={colors.icon} />
-              <Typography variant="body">
-                {theme === 'light' ? 'Dark mode' : 'Light mode'}
-              </Typography>
+              <Typography variant="body">{theme === 'light' ? 'Dark mode' : 'Light mode'}</Typography>
             </Pressable>
           </ScrollView>
 
           <View className="border-t border-outline-variant px-5 py-4">
-            <Typography variant="caption">Phase 2 · Offline reader</Typography>
+            <Typography variant="caption">Offline · 534 chapters bundled</Typography>
           </View>
         </Animated.View>
       </View>

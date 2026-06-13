@@ -11,6 +11,14 @@ export type LastRead = {
 };
 
 type KandaProgressMap = Partial<Record<TKanda, number>>;
+type ScrollOffsetMap = Record<string, number>;
+type OpenedChaptersMap = Record<string, true>;
+
+export type ReadingStats = {
+  chaptersOpened: number;
+  streakDays: number;
+  lastReadDate: string | null;
+};
 
 type ReadingProgressContextValue = {
   lastRead: LastRead | null;
@@ -18,32 +26,50 @@ type ReadingProgressContextValue = {
   setLastRead: (kanda: TKanda, sarga: string) => Promise<void>;
   getKandaProgress: (kanda: TKanda, chapterCount: number) => number;
   getOverallProgress: (totalChapters: number) => number;
+  saveScrollOffset: (kanda: TKanda, sarga: string, offset: number) => Promise<void>;
+  getScrollOffset: (kanda: TKanda, sarga: string) => number;
+  markChapterOpened: (kanda: TKanda, sarga: string) => Promise<void>;
+  stats: ReadingStats;
 };
 
 export const ReadingProgressContext = createContext<ReadingProgressContextValue | null>(null);
 
-type ReadingProgressProviderProps = {
-  children: ReactNode;
-};
+function chapterKey(kanda: TKanda, sarga: string) {
+  return `${kanda}-${sarga}`;
+}
 
-export function ReadingProgressProvider({ children }: ReadingProgressProviderProps) {
+function todayKey(date = new Date()) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+export function ReadingProgressProvider({ children }: { children: ReactNode }) {
   const [lastRead, setLastReadState] = useState<LastRead | null>(null);
   const [kandaProgress, setKandaProgress] = useState<KandaProgressMap>({});
+  const [scrollOffsets, setScrollOffsets] = useState<ScrollOffsetMap>({});
+  const [openedChapters, setOpenedChapters] = useState<OpenedChaptersMap>({});
+  const [streakDays, setStreakDays] = useState(0);
+  const [lastReadDate, setLastReadDate] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     async function loadProgress() {
       try {
-        const [lastRaw, kandaRaw] = await Promise.all([
+        const [lastRaw, kandaRaw, scrollRaw, openedRaw, streakRaw] = await Promise.all([
           AsyncStorage.getItem(STORAGE_KEYS.LAST_READ),
           AsyncStorage.getItem(STORAGE_KEYS.KANDA_PROGRESS),
+          AsyncStorage.getItem(STORAGE_KEYS.SCROLL_OFFSETS),
+          AsyncStorage.getItem(STORAGE_KEYS.OPENED_CHAPTERS),
+          AsyncStorage.getItem(STORAGE_KEYS.READING_STREAK),
         ]);
 
-        if (lastRaw) {
-          setLastReadState(JSON.parse(lastRaw) as LastRead);
-        }
-        if (kandaRaw) {
-          setKandaProgress(JSON.parse(kandaRaw) as KandaProgressMap);
+        if (lastRaw) setLastReadState(JSON.parse(lastRaw) as LastRead);
+        if (kandaRaw) setKandaProgress(JSON.parse(kandaRaw) as KandaProgressMap);
+        if (scrollRaw) setScrollOffsets(JSON.parse(scrollRaw) as ScrollOffsetMap);
+        if (openedRaw) setOpenedChapters(JSON.parse(openedRaw) as OpenedChaptersMap);
+        if (streakRaw) {
+          const parsed = JSON.parse(streakRaw) as { streakDays: number; lastReadDate: string | null };
+          setStreakDays(parsed.streakDays);
+          setLastReadDate(parsed.lastReadDate);
         }
       } finally {
         setIsReady(true);
@@ -53,24 +79,75 @@ export function ReadingProgressProvider({ children }: ReadingProgressProviderPro
     loadProgress();
   }, []);
 
-  const setLastRead = useCallback(async (kanda: TKanda, sarga: string) => {
-    const sargaNum = Number(sarga);
-    const next: LastRead = {
-      kanda,
-      sarga,
-      updatedAt: new Date().toISOString(),
-    };
+  const updateStreak = useCallback(async () => {
+    const today = todayKey();
+    let nextStreak = 1;
 
-    setLastReadState(next);
-    setKandaProgress((prev) => {
-      const highest = Math.max(prev[kanda] ?? 0, sargaNum);
-      const updated = { ...prev, [kanda]: highest };
-      AsyncStorage.setItem(STORAGE_KEYS.KANDA_PROGRESS, JSON.stringify(updated));
-      return updated;
-    });
+    if (lastReadDate === today) {
+      nextStreak = Math.max(streakDays, 1);
+    } else if (lastReadDate) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      nextStreak = lastReadDate === todayKey(yesterday) ? streakDays + 1 : 1;
+    }
 
-    await AsyncStorage.setItem(STORAGE_KEYS.LAST_READ, JSON.stringify(next));
-  }, []);
+    setStreakDays(nextStreak);
+    setLastReadDate(today);
+    await AsyncStorage.setItem(
+      STORAGE_KEYS.READING_STREAK,
+      JSON.stringify({ streakDays: nextStreak, lastReadDate: today })
+    );
+  }, [lastReadDate, streakDays]);
+
+  const setLastRead = useCallback(
+    async (kanda: TKanda, sarga: string) => {
+      const sargaNum = Number(sarga);
+      const next: LastRead = {
+        kanda,
+        sarga,
+        updatedAt: new Date().toISOString(),
+      };
+
+      setLastReadState(next);
+      setKandaProgress((prev) => {
+        const highest = Math.max(prev[kanda] ?? 0, sargaNum);
+        const updated = { ...prev, [kanda]: highest };
+        AsyncStorage.setItem(STORAGE_KEYS.KANDA_PROGRESS, JSON.stringify(updated));
+        return updated;
+      });
+
+      await AsyncStorage.setItem(STORAGE_KEYS.LAST_READ, JSON.stringify(next));
+      await updateStreak();
+    },
+    [updateStreak]
+  );
+
+  const markChapterOpened = useCallback(
+    async (kanda: TKanda, sarga: string) => {
+      const key = chapterKey(kanda, sarga);
+      if (openedChapters[key]) return;
+      const updated = { ...openedChapters, [key]: true as const };
+      setOpenedChapters(updated);
+      await AsyncStorage.setItem(STORAGE_KEYS.OPENED_CHAPTERS, JSON.stringify(updated));
+      await updateStreak();
+    },
+    [openedChapters, updateStreak]
+  );
+
+  const saveScrollOffset = useCallback(
+    async (kanda: TKanda, sarga: string, offset: number) => {
+      const key = chapterKey(kanda, sarga);
+      const updated = { ...scrollOffsets, [key]: offset };
+      setScrollOffsets(updated);
+      await AsyncStorage.setItem(STORAGE_KEYS.SCROLL_OFFSETS, JSON.stringify(updated));
+    },
+    [scrollOffsets]
+  );
+
+  const getScrollOffset = useCallback(
+    (kanda: TKanda, sarga: string) => scrollOffsets[chapterKey(kanda, sarga)] ?? 0,
+    [scrollOffsets]
+  );
 
   const getKandaProgress = useCallback(
     (kanda: TKanda, chapterCount: number) => {
@@ -90,6 +167,15 @@ export function ReadingProgressProvider({ children }: ReadingProgressProviderPro
     [kandaProgress]
   );
 
+  const stats = useMemo<ReadingStats>(
+    () => ({
+      chaptersOpened: Object.keys(openedChapters).length,
+      streakDays,
+      lastReadDate,
+    }),
+    [openedChapters, streakDays, lastReadDate]
+  );
+
   const value = useMemo(
     () => ({
       lastRead,
@@ -97,8 +183,22 @@ export function ReadingProgressProvider({ children }: ReadingProgressProviderPro
       setLastRead,
       getKandaProgress,
       getOverallProgress,
+      saveScrollOffset,
+      getScrollOffset,
+      markChapterOpened,
+      stats,
     }),
-    [lastRead, isReady, setLastRead, getKandaProgress, getOverallProgress]
+    [
+      lastRead,
+      isReady,
+      setLastRead,
+      getKandaProgress,
+      getOverallProgress,
+      saveScrollOffset,
+      getScrollOffset,
+      markChapterOpened,
+      stats,
+    ]
   );
 
   return <ReadingProgressContext.Provider value={value}>{children}</ReadingProgressContext.Provider>;

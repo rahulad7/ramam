@@ -1,16 +1,20 @@
 import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 
+import { DispatchMasthead } from '@/components/layout/DispatchMasthead';
 import { ScreenShell } from '@/components/layout/ScreenShell';
+import { HtmlText } from '@/components/reading/HtmlText';
 import { Button } from '@/components/ui/Button';
 import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
 import { KANDAS } from '@/constants/kandas';
+import { getDailyWisdom } from '@/lib/dailyWisdom';
+import { shareText } from '@/lib/share';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
-import { getSarga } from '@/lib/content';
 
 export default function HomeScreen() {
   const { lastRead } = useReadingProgress();
+  const daily = getDailyWisdom();
 
   const continueLabel = lastRead
     ? `Continue: ${lastRead.kanda} · Chapter ${lastRead.sarga}`
@@ -20,19 +24,11 @@ export default function HomeScreen() {
     ? `/library/${lastRead.kanda}/${lastRead.sarga}`
     : '/library/bala/1';
 
-  const featuredSarga = getSarga('bala', '1');
-
   return (
     <ScreenShell>
       <ScrollView className="flex-1" contentContainerClassName="px-5 pb-10">
         <View className="mt-4">
-          <Typography variant="label-sm">The Archive</Typography>
-          <Typography variant="headline" className="mt-2">
-            Ancient Wisdom, Daily Reflections
-          </Typography>
-          <Typography variant="caption" className="mt-3 leading-6">
-            Personalized knowledge from the ancient epics, curated for the modern seeker.
-          </Typography>
+          <DispatchMasthead />
         </View>
 
         <View className="mt-8 border border-outline-variant bg-surface-low p-5">
@@ -47,13 +43,34 @@ export default function HomeScreen() {
 
         <Divider />
 
-        <Typography variant="label-sm">Today&apos;s Opening</Typography>
-        <Typography variant="headline-sm" className="mt-3">
-          {featuredSarga?.title ?? 'Narada briefs Valmiki'}
-        </Typography>
-        <Typography variant="caption" className="mt-3 leading-6">
-          {featuredSarga?.overview.slice(0, 220)}...
-        </Typography>
+        {daily ? (
+          <View className="border border-outline-variant bg-surface-container p-5">
+            <Typography variant="label-sm">Today&apos;s Wisdom</Typography>
+            <Typography variant="headline-sm" className="mt-3">
+              {daily.title}
+            </Typography>
+            <Typography variant="caption" className="mt-2">
+              {daily.kandaName} · Chapter {daily.sarga}
+            </Typography>
+            <View className="mt-4">
+              <HtmlText html={daily.verseHtml} />
+            </View>
+            <Typography variant="caption" italic className="mt-4 leading-6">
+              {daily.reflection}
+            </Typography>
+            <View className="mt-4 gap-3">
+              <Button
+                label="Read full chapter"
+                onPress={() => router.push(`/library/${daily.kanda}/${daily.sarga}` as never)}
+              />
+              <Button
+                label="Open Daily Wisdom"
+                variant="secondary"
+                onPress={() => router.push('/(tabs)/daily-wisdom' as never)}
+              />
+            </View>
+          </View>
+        ) : null}
 
         <Divider />
 

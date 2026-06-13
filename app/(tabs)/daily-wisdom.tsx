@@ -1,43 +1,74 @@
+import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Masthead } from '@/components/layout/Masthead';
+import { ScreenShell } from '@/components/layout/ScreenShell';
 import { HtmlText } from '@/components/reading/HtmlText';
+import { ReflectionCard } from '@/components/reading/ReflectionCard';
+import { Button } from '@/components/ui/Button';
 import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
-import { getSarga } from '@/lib/content';
-
-const featured = getSarga('bala', '1');
-const featuredVerse = featured?.content.find((block) => block.type === 'verse');
+import { getDailyWisdom } from '@/lib/dailyWisdom';
+import { shareText } from '@/lib/share';
 
 export default function DailyWisdomScreen() {
-  return (
-    <SafeAreaView className="flex-1 bg-background">
-      <ScrollView className="flex-1" contentContainerClassName="px-5 pb-10">
-        <Masthead subtitle="A daily verse for reflection." />
+  const daily = getDailyWisdom();
 
-        <View className="mt-8 border border-outline-variant bg-surface-low p-5">
+  if (!daily) {
+    return (
+      <ScreenShell>
+        <View className="flex-1 items-center justify-center px-6">
+          <Typography variant="body">Unable to load today&apos;s wisdom.</Typography>
+        </View>
+      </ScreenShell>
+    );
+  }
+
+  return (
+    <ScreenShell>
+      <ScrollView className="flex-1" contentContainerClassName="px-5 pb-10">
+        <Typography variant="label-sm">Daily Dispatch</Typography>
+        <Typography variant="headline" className="mt-2">
+          Issue No. {daily.issueNumber}
+        </Typography>
+        <Typography variant="caption" className="mt-2">
+          {daily.kandaName} · Chapter {daily.sarga}
+        </Typography>
+
+        <Divider />
+
+        <View className="border border-outline-variant bg-surface-low p-5">
           <Typography variant="label-sm">Verse of the Day</Typography>
           <Typography variant="headline-sm" className="mt-4">
-            The Essence of Ethical Conduct
+            {daily.title}
           </Typography>
-          {featuredVerse ? <HtmlText html={featuredVerse.text} className="mt-4" /> : null}
+          <View className="mt-4">
+            <HtmlText html={daily.verseHtml} />
+          </View>
         </View>
 
         <Divider />
 
-        <Typography variant="label-sm">Reflection</Typography>
-        <Typography variant="body-lg" className="mt-3 leading-7">
-          How does the pursuit of dharma shape the choices we make when duty and desire pull in different
-          directions?
-        </Typography>
+        <ReflectionCard reflection={daily.reflection} />
 
         <Divider />
 
-        <Typography variant="caption" className="leading-6">
-          {featured?.overview}
+        <Typography variant="label-sm">Editor&apos;s Note</Typography>
+        <Typography variant="body" className="mt-3 leading-6">
+          {daily.overview}...
         </Typography>
+
+        <View className="mt-6 gap-3">
+          <Button
+            label="Read chapter"
+            onPress={() => router.push(`/library/${daily.kanda}/${daily.sarga}` as never)}
+          />
+          <Button
+            label="Share verse"
+            variant="secondary"
+            onPress={() => shareText(daily.title, daily.versePlain)}
+          />
+        </View>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenShell>
   );
 }
