@@ -18,6 +18,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="highlights" options={{ href: null, title: 'Highlights' }} />
       <Tabs.Screen name="settings" options={{ href: null, title: 'Settings' }} />
       <Tabs.Screen name="daily-wisdom" options={{ href: null, title: 'Daily Wisdom' }} />
+      <Tabs.Screen name="characters" options={{ href: null, title: 'Characters' }} />
     </Tabs>
   );
 }

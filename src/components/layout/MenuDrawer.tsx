@@ -20,6 +20,7 @@ const MENU_ITEMS: MenuItem[] = [
   { label: 'Home', icon: 'home-outline', href: '/(tabs)' },
   { label: 'Library', icon: 'book-outline', href: '/(tabs)/library' },
   { label: 'Daily Wisdom', icon: 'sunny-outline', href: '/(tabs)/daily-wisdom' },
+  { label: 'Characters', icon: 'people-outline', href: '/(tabs)/characters' },
   { label: 'Search', icon: 'search-outline', href: '/(tabs)/search' },
   { label: 'Bookmarks', icon: 'bookmark-outline', href: '/(tabs)/bookmarks' },
   { label: 'Highlights', icon: 'color-fill-outline', href: '/(tabs)/highlights' },

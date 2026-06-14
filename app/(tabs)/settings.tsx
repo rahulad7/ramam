@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
 import { Alert, Pressable, ScrollView, View } from 'react-native';
 
 import { ScreenShell } from '@/components/layout/ScreenShell';
@@ -8,6 +7,7 @@ import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
 import { STORAGE_KEYS } from '@/constants/storage';
 import type { FontSize } from '@/types/settings';
+import { goBackOr } from '@/lib/navigation';
 import { useReadingSettings } from '@/hooks/useReadingSettings';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -51,7 +51,7 @@ export default function SettingsScreen() {
   return (
     <ScreenShell>
       <ScrollView className="flex-1" contentContainerClassName="px-5 pb-10">
-        <Pressable onPress={() => router.back()} className="mt-2">
+        <Pressable onPress={() => goBackOr('/(tabs)/profile')} className="mt-2">
           <Typography variant="caption">← Back</Typography>
         </Pressable>
 

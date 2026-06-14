@@ -1,15 +1,16 @@
 import { router } from 'expo-router';
-import { ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
+import { CharacterCard } from '@/components/characters/CharacterCard';
 import { DispatchMasthead } from '@/components/layout/DispatchMasthead';
 import { ScreenShell } from '@/components/layout/ScreenShell';
 import { HtmlText } from '@/components/reading/HtmlText';
 import { Button } from '@/components/ui/Button';
 import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
+import { CHARACTERS } from '@/constants/characters';
 import { KANDAS } from '@/constants/kandas';
 import { getDailyWisdom } from '@/lib/dailyWisdom';
-import { shareText } from '@/lib/share';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
 
 export default function HomeScreen() {
@@ -71,6 +72,27 @@ export default function HomeScreen() {
             </View>
           </View>
         ) : null}
+
+        <Divider />
+
+        <View className="flex-row items-center justify-between">
+          <Typography variant="label-sm">Characters</Typography>
+          <Pressable onPress={() => router.push('/(tabs)/characters' as never)}>
+            <Typography variant="caption">See all</Typography>
+          </Pressable>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-4">
+          <View className="flex-row gap-3 pr-2">
+            {CHARACTERS.slice(0, 6).map((character) => (
+              <CharacterCard
+                key={character.id}
+                character={character}
+                compact
+                onPress={() => router.push(`/(tabs)/characters/${character.id}` as never)}
+              />
+            ))}
+          </View>
+        </ScrollView>
 
         <Divider />
 

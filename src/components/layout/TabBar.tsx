@@ -31,8 +31,10 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
 
   const inNestedLibrary =
     segments.includes('library') && segments.indexOf('library') < segments.length - 1;
+  const inNestedCharacters =
+    segments.includes('characters') && segments.indexOf('characters') < segments.length - 1;
 
-  if (inNestedLibrary) {
+  if (inNestedLibrary || inNestedCharacters) {
     return null;
   }
 

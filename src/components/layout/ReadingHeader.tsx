@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -7,6 +6,7 @@ import { Typography } from '@/components/ui/Typography';
 import { KANDAS } from '@/constants/kandas';
 import { THEME_COLORS } from '@/constants/theme';
 import { useBookmarks } from '@/hooks/useBookmarks';
+import { goBackOr } from '@/lib/navigation';
 import { useTheme } from '@/hooks/useTheme';
 import type { TKanda } from '@/types/content';
 
@@ -29,7 +29,7 @@ export function ReadingHeader({ kanda, sarga, onShare }: ReadingHeaderProps) {
       <View className="h-14 flex-row items-center justify-between px-2">
         <Pressable
           className="h-10 w-10 items-center justify-center active:opacity-60"
-          onPress={() => router.back()}
+          onPress={() => goBackOr('/(tabs)/library')}
         >
           <Ionicons name="chevron-back" size={24} color={colors.icon} />
         </Pressable>

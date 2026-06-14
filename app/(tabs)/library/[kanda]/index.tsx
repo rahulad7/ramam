@@ -7,6 +7,7 @@ import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
 import { KANDAS } from '@/constants/kandas';
 import { THEME_COLORS } from '@/constants/theme';
+import { goBackOr } from '@/lib/navigation';
 import { useKandaChapters } from '@/hooks/useKandaChapters';
 import { useTheme } from '@/hooks/useTheme';
 import type { TKanda } from '@/types/content';
@@ -31,7 +32,7 @@ export default function KandaScreen() {
     <View className="flex-1 bg-background">
       <View className="border-b border-outline-variant bg-background" style={{ paddingTop: insets.top }}>
         <View className="h-14 flex-row items-center px-2">
-          <Pressable className="h-10 w-10 items-center justify-center" onPress={() => router.back()}>
+          <Pressable className="h-10 w-10 items-center justify-center" onPress={() => goBackOr('/(tabs)/library')}>
             <Ionicons name="chevron-back" size={24} color={colors.icon} />
           </Pressable>
           <Typography variant="label-sm" className="ml-2 normal-case tracking-widest">
