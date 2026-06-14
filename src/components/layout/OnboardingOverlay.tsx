@@ -23,18 +23,25 @@ const SLIDES = [
   },
 ];
 
-export function OnboardingOverlay() {
+type OnboardingOverlayProps = {
+  enabled?: boolean;
+};
+
+export function OnboardingOverlay({ enabled = true }: OnboardingOverlayProps) {
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(0);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
+    if (!enabled) return;
+
     async function check() {
       const done = await AsyncStorage.getItem(STORAGE_KEYS.ONBOARDING_DONE);
       if (!done) setVisible(true);
     }
+
     check();
-  }, []);
+  }, [enabled]);
 
   async function finish() {
     await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING_DONE, 'true');
@@ -49,7 +56,7 @@ export function OnboardingOverlay() {
     setStep((prev) => prev + 1);
   }
 
-  if (!visible) return null;
+  if (!enabled || !visible) return null;
 
   const slide = SLIDES[step];
 

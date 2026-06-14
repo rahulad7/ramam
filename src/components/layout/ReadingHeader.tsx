@@ -6,7 +6,7 @@ import { Typography } from '@/components/ui/Typography';
 import { KANDAS } from '@/constants/kandas';
 import { THEME_COLORS } from '@/constants/theme';
 import { useBookmarks } from '@/hooks/useBookmarks';
-import { goBackOr } from '@/lib/navigation';
+import { goBackToKanda } from '@/lib/navigation';
 import { useTheme } from '@/hooks/useTheme';
 import type { TKanda } from '@/types/content';
 
@@ -29,16 +29,20 @@ export function ReadingHeader({ kanda, sarga, onShare }: ReadingHeaderProps) {
       <View className="h-14 flex-row items-center justify-between px-2">
         <Pressable
           className="h-10 w-10 items-center justify-center active:opacity-60"
-          onPress={() => goBackOr('/(tabs)/library')}
+          onPress={() => goBackToKanda(kanda)}
         >
           <Ionicons name="chevron-back" size={24} color={colors.icon} />
         </Pressable>
 
-        <Typography variant="label-sm" className="normal-case tracking-widest">
+        <Typography
+          variant="label-sm"
+          className="mx-2 flex-1 text-center normal-case tracking-widest"
+          numberOfLines={1}
+        >
           {kandaName} · Ch. {sarga}
         </Typography>
 
-        <View className="flex-row items-center">
+        <View className="w-20 flex-row items-center justify-end">
           {onShare ? (
             <Pressable
               className="h-10 w-10 items-center justify-center active:opacity-60"

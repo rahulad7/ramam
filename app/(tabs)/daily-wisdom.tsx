@@ -54,7 +54,7 @@ export default function DailyWisdomScreen() {
 
         <Typography variant="label-sm">Editor&apos;s Note</Typography>
         <Typography variant="body" className="mt-3 leading-6">
-          {daily.overview}...
+          {daily.overview}
         </Typography>
 
         <View className="mt-6 gap-3">

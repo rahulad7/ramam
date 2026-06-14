@@ -42,10 +42,6 @@ function RootLayoutNav() {
     return () => clearTimeout(timer);
   }, [appReady]);
 
-  if (!appReady) {
-    return <View className="flex-1 bg-background" />;
-  }
-
   return (
     <DrawerProvider>
       <View className={isDark ? 'dark flex-1' : 'flex-1'}>
@@ -55,8 +51,12 @@ function RootLayoutNav() {
           <Stack.Screen name="(tabs)" />
         </Stack>
         <MenuDrawer />
-        <OnboardingOverlay />
-        {showSplash ? <AnimatedSplash /> : null}
+        <OnboardingOverlay enabled={appReady && !showSplash} />
+        {!appReady ? (
+          <View className="absolute inset-0 z-50 bg-background" />
+        ) : showSplash ? (
+          <AnimatedSplash />
+        ) : null}
       </View>
     </DrawerProvider>
   );

@@ -4,6 +4,7 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { ScreenShell } from '@/components/layout/ScreenShell';
 import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
+import { getKandaName } from '@/constants/kandas';
 import { useBookmarks } from '@/hooks/useBookmarks';
 
 export default function BookmarksScreen() {
@@ -33,7 +34,7 @@ export default function BookmarksScreen() {
                 onLongPress={() => removeBookmark(bookmark.id)}
               >
                 <Typography variant="label-sm" className="normal-case tracking-normal">
-                  {bookmark.kanda} · Chapter {bookmark.sarga}
+                  {getKandaName(bookmark.kanda)} · Chapter {bookmark.sarga}
                 </Typography>
                 <Typography variant="body" className="mt-2">
                   {bookmark.title}

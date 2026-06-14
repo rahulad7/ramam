@@ -5,7 +5,7 @@ import { ScreenShell } from '@/components/layout/ScreenShell';
 import { Button } from '@/components/ui/Button';
 import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
-import { APP_NAME, KANDAS } from '@/constants/kandas';
+import { APP_NAME, KANDAS, getKandaName } from '@/constants/kandas';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { useHighlights } from '@/hooks/useHighlights';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
@@ -49,7 +49,7 @@ export default function ProfileScreen() {
           <Typography variant="body">Reading streak: {stats.streakDays} day{stats.streakDays === 1 ? '' : 's'}</Typography>
           <Typography variant="caption" className="mt-1">
             {lastRead
-              ? `Last read: ${lastRead.kanda} · Chapter ${lastRead.sarga}`
+              ? `Last read: ${getKandaName(lastRead.kanda)} · Chapter ${lastRead.sarga}`
               : 'You have not started reading yet.'}
           </Typography>
           <Typography variant="caption">

@@ -3,27 +3,28 @@ import { Pressable, ScrollView, View } from 'react-native';
 
 import { CharacterCard } from '@/components/characters/CharacterCard';
 import { DispatchMasthead } from '@/components/layout/DispatchMasthead';
+import { KandaCard } from '@/components/library/KandaCard';
 import { ScreenShell } from '@/components/layout/ScreenShell';
 import { HtmlText } from '@/components/reading/HtmlText';
 import { Button } from '@/components/ui/Button';
 import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
 import { CHARACTERS } from '@/constants/characters';
-import { KANDAS } from '@/constants/kandas';
+import { KANDAS, getKandaName } from '@/constants/kandas';
 import { getDailyWisdom } from '@/lib/dailyWisdom';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
 
 export default function HomeScreen() {
-  const { lastRead } = useReadingProgress();
+  const { lastRead, getKandaProgress } = useReadingProgress();
   const daily = getDailyWisdom();
 
   const continueLabel = lastRead
-    ? `Continue: ${lastRead.kanda} · Chapter ${lastRead.sarga}`
+    ? `Continue: ${getKandaName(lastRead.kanda)} · Chapter ${lastRead.sarga}`
     : 'Start with Bala Kanda';
 
   const continueHref = lastRead
-    ? `/library/${lastRead.kanda}/${lastRead.sarga}`
-    : '/library/bala/1';
+    ? `/(tabs)/library/${lastRead.kanda}/${lastRead.sarga}`
+    : '/(tabs)/library/bala/1';
 
   return (
     <ScreenShell>
@@ -38,7 +39,7 @@ export default function HomeScreen() {
             {continueLabel}
           </Typography>
           <View className="mt-4">
-            <Button label="Resume" onPress={() => router.push(continueHref as never)} />
+            <Button label="Resume" onPress={() => router.navigate(continueHref as never)} />
           </View>
         </View>
 
@@ -81,7 +82,12 @@ export default function HomeScreen() {
             <Typography variant="caption">See all</Typography>
           </Pressable>
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-4">
+        <ScrollView
+          horizontal
+          nestedScrollEnabled
+          showsHorizontalScrollIndicator={false}
+          className="mt-4"
+        >
           <View className="flex-row gap-3 pr-2">
             {CHARACTERS.slice(0, 6).map((character) => (
               <CharacterCard
@@ -97,16 +103,24 @@ export default function HomeScreen() {
         <Divider />
 
         <Typography variant="label-sm">The Six Kandas</Typography>
-        <View className="mt-4 gap-3">
-          {KANDAS.map((kanda) => (
-            <Button
-              key={kanda.id}
-              label={kanda.name}
-              variant="secondary"
-              onPress={() => router.push(`/library/${kanda.id}` as never)}
-            />
-          ))}
-        </View>
+        <ScrollView
+          horizontal
+          nestedScrollEnabled
+          showsHorizontalScrollIndicator={false}
+          className="mt-4"
+        >
+          <View className="flex-row gap-3 pr-2">
+            {KANDAS.map((kanda) => (
+              <KandaCard
+                key={kanda.id}
+                kanda={kanda}
+                progress={getKandaProgress(kanda.id, kanda.chapterCount)}
+                compact
+                onPress={() => router.navigate(`/(tabs)/library/${kanda.id}` as never)}
+              />
+            ))}
+          </View>
+        </ScrollView>
       </ScrollView>
     </ScreenShell>
   );

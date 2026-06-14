@@ -1,13 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Image, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
 import { KANDAS } from '@/constants/kandas';
 import { THEME_COLORS } from '@/constants/theme';
-import { goBackOr } from '@/lib/navigation';
+import { goBackToLibrary } from '@/lib/navigation';
 import { useKandaChapters } from '@/hooks/useKandaChapters';
 import { useTheme } from '@/hooks/useTheme';
 import type { TKanda } from '@/types/content';
@@ -32,16 +32,24 @@ export default function KandaScreen() {
     <View className="flex-1 bg-background">
       <View className="border-b border-outline-variant bg-background" style={{ paddingTop: insets.top }}>
         <View className="h-14 flex-row items-center px-2">
-          <Pressable className="h-10 w-10 items-center justify-center" onPress={() => goBackOr('/(tabs)/library')}>
+          <Pressable className="h-10 w-10 items-center justify-center" onPress={goBackToLibrary}>
             <Ionicons name="chevron-back" size={24} color={colors.icon} />
           </Pressable>
-          <Typography variant="label-sm" className="ml-2 normal-case tracking-widest">
+          <Typography variant="label-sm" className="ml-2 flex-1 normal-case tracking-widest" numberOfLines={1}>
             {kandaMeta.name}
           </Typography>
         </View>
       </View>
 
-      <ScrollView className="flex-1" contentContainerClassName="px-5 pb-10">
+      <ScrollView className="flex-1" contentContainerClassName="pb-10">
+        <Image
+          source={kandaMeta.image}
+          className="h-52 w-full"
+          resizeMode="cover"
+          accessibilityLabel={kandaMeta.name}
+        />
+
+        <View className="px-5 pt-6">
         <Typography variant="label-sm">{kandaMeta.subtitle}</Typography>
         <Typography variant="headline" className="mt-2">
           {kandaMeta.name}
@@ -81,6 +89,7 @@ export default function KandaScreen() {
               </Typography>
             </Pressable>
           ))}
+        </View>
         </View>
       </ScrollView>
     </View>
