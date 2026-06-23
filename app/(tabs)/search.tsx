@@ -6,20 +6,16 @@ import { ScreenShell } from '@/components/layout/ScreenShell';
 import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
 import { KANDAS } from '@/constants/kandas';
+import { THEME_COLORS } from '@/constants/theme';
 import { useRecentSearches } from '@/hooks/useRecentSearches';
 import { useSearch } from '@/hooks/useSearch';
-import { useTheme } from '@/hooks/useTheme';
 
 export default function SearchScreen() {
   const [query, setQuery] = useState('');
   const { results, isSearching, hasQuery } = useSearch(query);
   const { recent, addRecent, clearRecent } = useRecentSearches();
-  const { isDark } = useTheme();
-
-  const placeholderColor = isDark ? '#a89b94' : '#7e756f';
-  const inputClass = isDark
-    ? 'font-franklin text-base text-on-surface'
-    : 'font-franklin text-base text-on-surface';
+  const placeholderColor = THEME_COLORS.iconMuted;
+  const inputClass = 'font-franklin text-base text-on-surface';
 
   function handleSubmit() {
     if (query.trim()) {
@@ -87,7 +83,7 @@ export default function SearchScreen() {
         {hasQuery ? (
           <View className="mt-6">
             {isSearching ? (
-              <ActivityIndicator className="mt-4" />
+              <ActivityIndicator className="mt-4" color={THEME_COLORS.icon} />
             ) : results.length === 0 ? (
               <Typography variant="body" className="mt-2 text-on-surface-variant">
                 No chapters matched &quot;{query.trim()}&quot;. Try a shorter phrase or another spelling.

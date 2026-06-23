@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
 
 import { CharacterCard } from '@/components/characters/CharacterCard';
@@ -11,8 +10,10 @@ import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
 import { CHARACTERS } from '@/constants/characters';
 import { KANDAS, getKandaName } from '@/constants/kandas';
-import { getDailyWisdom } from '@/lib/dailyWisdom';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
+import { getDailyWisdom } from '@/lib/dailyWisdom';
+import { openChapter, openKanda, openScreen } from '@/lib/navigation';
+import { routes } from '@/lib/routes';
 
 export default function HomeScreen() {
   const { lastRead, getKandaProgress } = useReadingProgress();
@@ -21,10 +22,6 @@ export default function HomeScreen() {
   const continueLabel = lastRead
     ? `Continue: ${getKandaName(lastRead.kanda)} · Chapter ${lastRead.sarga}`
     : 'Start with Bala Kanda';
-
-  const continueHref = lastRead
-    ? `/(tabs)/library/${lastRead.kanda}/${lastRead.sarga}`
-    : '/(tabs)/library/bala/1';
 
   return (
     <ScreenShell>
@@ -39,7 +36,14 @@ export default function HomeScreen() {
             {continueLabel}
           </Typography>
           <View className="mt-4">
-            <Button label="Resume" onPress={() => router.navigate(continueHref as never)} />
+            <Button
+              label="Resume"
+              onPress={() =>
+                lastRead
+                  ? openChapter(lastRead.kanda, lastRead.sarga)
+                  : openChapter('bala', 1)
+              }
+            />
           </View>
         </View>
 
@@ -63,12 +67,12 @@ export default function HomeScreen() {
             <View className="mt-4 gap-3">
               <Button
                 label="Read full chapter"
-                onPress={() => router.push(`/library/${daily.kanda}/${daily.sarga}` as never)}
+                onPress={() => openChapter(daily.kanda, daily.sarga)}
               />
               <Button
                 label="Open Daily Wisdom"
                 variant="secondary"
-                onPress={() => router.push('/(tabs)/daily-wisdom' as never)}
+                onPress={() => openScreen(routes.dailyWisdom)}
               />
             </View>
           </View>
@@ -78,7 +82,7 @@ export default function HomeScreen() {
 
         <View className="flex-row items-center justify-between">
           <Typography variant="label-sm">Characters</Typography>
-          <Pressable onPress={() => router.push('/(tabs)/characters' as never)}>
+          <Pressable onPress={() => openScreen(routes.characters)}>
             <Typography variant="caption">See all</Typography>
           </Pressable>
         </View>
@@ -94,7 +98,7 @@ export default function HomeScreen() {
                 key={character.id}
                 character={character}
                 compact
-                onPress={() => router.push(`/(tabs)/characters/${character.id}` as never)}
+                onPress={() => openScreen(routes.character(character.id))}
               />
             ))}
           </View>
@@ -116,7 +120,7 @@ export default function HomeScreen() {
                 kanda={kanda}
                 progress={getKandaProgress(kanda.id, kanda.chapterCount)}
                 compact
-                onPress={() => router.navigate(`/(tabs)/library/${kanda.id}` as never)}
+                onPress={() => openKanda(kanda.id)}
               />
             ))}
           </View>

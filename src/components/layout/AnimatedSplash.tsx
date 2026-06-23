@@ -1,35 +1,26 @@
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
 
 import { Typography } from '@/components/ui/Typography';
+import { SPLASH_IMAGE } from '@/constants/assets';
 import { APP_EST, APP_NAME, APP_TAGLINE } from '@/constants/kandas';
 import { THEME_COLORS } from '@/constants/theme';
-import { useTheme } from '@/hooks/useTheme';
-
-function LogoMark() {
-  return (
-    <View className="mb-8 h-16 w-16 items-center justify-center border border-primary">
-      <View className="w-8 gap-1.5">
-        <View className="h-px w-full bg-primary" />
-        <View className="h-px w-3/4 bg-primary" />
-        <View className="h-px w-full bg-primary" />
-      </View>
-    </View>
-  );
-}
+import { themeVars } from '@/constants/themeVars';
 
 export function AnimatedSplash() {
-  const { isDark } = useTheme();
-  const backgroundColor = isDark ? THEME_COLORS.dark.background : THEME_COLORS.light.background;
-
   return (
     <Animated.View
       entering={FadeIn.duration(300)}
       exiting={FadeOut.duration(400)}
-      style={[styles.root, { backgroundColor }]}
+      style={[styles.root, themeVars, { backgroundColor: THEME_COLORS.background }]}
     >
       <Animated.View entering={FadeIn.duration(800)} className="items-center">
-        <LogoMark />
+        <Image
+          source={SPLASH_IMAGE}
+          className="mb-8 h-52 w-52 border border-outline-variant"
+          resizeMode="cover"
+          accessibilityLabel="Ramayana"
+        />
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(300).duration(700)} className="items-center">

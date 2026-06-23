@@ -9,6 +9,7 @@
     "web": "expo start --web",
     "generate:content": "node scripts/generate-content-map.mjs",
     "generate:search": "node scripts/generate-search-index.mjs",
+    "generate:icons": "python3 scripts/generate-app-icons.py",
     "generate": "npm run generate:content && npm run generate:search"
   },
   "dependencies": {

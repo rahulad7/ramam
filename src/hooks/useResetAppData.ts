@@ -7,14 +7,12 @@ import { useHighlights } from '@/hooks/useHighlights';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
 import { useReadingSettings } from '@/hooks/useReadingSettings';
 import { useRecentSearches } from '@/hooks/useRecentSearches';
-import { useTheme } from '@/hooks/useTheme';
 
 export function useResetAppData() {
   const { resetProgress } = useReadingProgress();
   const { resetBookmarks } = useBookmarks();
   const { resetHighlights } = useHighlights();
   const { resetSettings } = useReadingSettings();
-  const { resetTheme } = useTheme();
   const { clearRecent } = useRecentSearches();
 
   return useCallback(async () => {
@@ -23,16 +21,8 @@ export function useResetAppData() {
       resetBookmarks(),
       resetHighlights(),
       resetSettings(),
-      resetTheme(),
       clearRecent(),
       AsyncStorage.removeItem(STORAGE_KEYS.ONBOARDING_DONE),
     ]);
-  }, [
-    resetProgress,
-    resetBookmarks,
-    resetHighlights,
-    resetSettings,
-    resetTheme,
-    clearRecent,
-  ]);
+  }, [resetProgress, resetBookmarks, resetHighlights, resetSettings, clearRecent]);
 }

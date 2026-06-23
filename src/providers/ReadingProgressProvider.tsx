@@ -152,11 +152,11 @@ export function ReadingProgressProvider({ children }: { children: ReactNode }) {
 
   const getKandaProgress = useCallback(
     (kanda: TKanda, chapterCount: number) => {
-      const openedInKanda = Object.keys(openedChapters).filter((key) => key.startsWith(`${kanda}-`)).length;
+      const highest = kandaProgress[kanda] ?? 0;
       if (!chapterCount) return 0;
-      return Math.min(openedInKanda / chapterCount, 1);
+      return Math.min(highest / chapterCount, 1);
     },
-    [openedChapters]
+    [kandaProgress]
   );
 
   const getOverallProgress = useCallback(

@@ -1,8 +1,8 @@
-import { router } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { Pressable } from 'react-native';
 
 import { Typography } from '@/components/ui/Typography';
 import { KANDAS } from '@/constants/kandas';
+import { openChapter } from '@/lib/navigation';
 import type { SearchResult } from '@/lib/search';
 
 type SearchResultCardProps = {
@@ -18,7 +18,7 @@ export function SearchResultCard({ result, onPress }: SearchResultCardProps) {
       className="border border-outline-variant bg-surface-low px-4 py-4 active:bg-surface-container"
       onPress={() => {
         onPress?.();
-        router.push(`/library/${result.kanda}/${result.sarga}` as never);
+        openChapter(result.kanda, result.sarga);
       }}
     >
       <Typography variant="label-sm" className="normal-case tracking-normal">

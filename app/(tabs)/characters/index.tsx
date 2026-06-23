@@ -1,17 +1,23 @@
-import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 
 import { CharacterCard } from '@/components/characters/CharacterCard';
+import { BackLink } from '@/components/layout/BackLink';
 import { ScreenShell } from '@/components/layout/ScreenShell';
 import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
 import { CHARACTERS } from '@/constants/characters';
+import { openScreen } from '@/lib/navigation';
+import { routes } from '@/lib/routes';
 
 export default function CharactersScreen() {
   return (
     <ScreenShell>
       <ScrollView className="flex-1" contentContainerClassName="px-5 pb-10">
-        <Typography variant="label-sm">The Epic</Typography>
+        <BackLink fallback={routes.home} />
+
+        <Typography variant="label-sm" className="mt-4">
+          The Epic
+        </Typography>
         <Typography variant="headline" className="mt-2">
           Characters
         </Typography>
@@ -27,7 +33,7 @@ export default function CharactersScreen() {
             <CharacterCard
               key={character.id}
               character={character}
-              onPress={() => router.push(`/(tabs)/characters/${character.id}` as never)}
+              onPress={() => openScreen(routes.character(character.id))}
             />
           ))}
         </View>
