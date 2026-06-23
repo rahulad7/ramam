@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Typography } from '@/components/ui/Typography';
@@ -32,7 +32,7 @@ export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProp
           {showMenu ? (
             <Pressable
               accessibilityLabel="Menu"
-              className="h-10 w-10 items-center justify-center active:opacity-60"
+              style={styles.iconButton}
               onPress={openDrawer}
             >
               <Ionicons name="menu-outline" size={24} color={colors.icon} />
@@ -51,7 +51,7 @@ export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProp
             <>
               <Pressable
                 accessibilityLabel="Bookmarks"
-                className="h-10 w-10 items-center justify-center active:opacity-60"
+                style={styles.iconButton}
                 onPress={() => router.navigate('/(tabs)/bookmarks' as never)}
               >
                 <Ionicons
@@ -62,7 +62,7 @@ export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProp
               </Pressable>
               <Pressable
                 accessibilityLabel="Search"
-                className="h-10 w-10 items-center justify-center active:opacity-60"
+                style={styles.iconButton}
                 onPress={() => router.navigate('/(tabs)/search' as never)}
               >
                 <Ionicons name="search-outline" size={22} color={colors.icon} />
@@ -74,3 +74,12 @@ export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProp
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  iconButton: {
+    height: 40,
+    width: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

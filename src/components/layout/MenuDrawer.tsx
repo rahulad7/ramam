@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Modal, Pressable, ScrollView, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, SlideInLeft } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ThemedView } from '@/components/ui/ThemedView';
 import { Typography } from '@/components/ui/Typography';
 import { APP_NAME, APP_TAGLINE } from '@/constants/kandas';
 import { THEME_COLORS } from '@/constants/theme';
@@ -30,6 +31,17 @@ const MENU_ITEMS: MenuItem[] = [
 
 const DRAWER_WIDTH = 288;
 
+const styles = StyleSheet.create({
+  drawerRoot: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  },
+});
+
 export function MenuDrawer() {
   const { isOpen, closeDrawer } = useDrawer();
   const { isDark, theme, toggleTheme } = useTheme();
@@ -43,7 +55,7 @@ export function MenuDrawer() {
 
   return (
     <Modal visible={isOpen} transparent animationType="none" onRequestClose={closeDrawer}>
-      <View className="flex-1 flex-row">
+      <ThemedView style={styles.drawerRoot}>
         <Animated.View
           entering={SlideInLeft.duration(260)}
           className="h-full bg-background border-r border-outline-variant"
@@ -97,10 +109,10 @@ export function MenuDrawer() {
           </View>
         </Animated.View>
 
-        <Pressable className="flex-1 bg-black/40" onPress={closeDrawer}>
-          <Animated.View entering={FadeIn.duration(200)} className="flex-1" />
+        <Pressable style={styles.backdrop} onPress={closeDrawer}>
+          <Animated.View entering={FadeIn.duration(200)} style={styles.backdrop} />
         </Pressable>
-      </View>
+      </ThemedView>
     </Modal>
   );
 }

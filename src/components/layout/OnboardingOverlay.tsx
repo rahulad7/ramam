@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import { Modal, Pressable, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/Button';
@@ -63,8 +63,10 @@ export function OnboardingOverlay({ enabled = true }: OnboardingOverlayProps) {
   return (
     <Modal visible animationType="fade" transparent onRequestClose={finish}>
       <View
-        className="flex-1 justify-end bg-black/50"
-        style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+        style={[
+          styles.scrim,
+          { paddingTop: insets.top, paddingBottom: insets.bottom },
+        ]}
       >
         <View className="mx-4 mb-6 border border-outline-variant bg-background p-6">
           <Typography variant="label-sm">{APP_NAME}</Typography>
@@ -98,3 +100,11 @@ export function OnboardingOverlay({ enabled = true }: OnboardingOverlayProps) {
     </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  scrim: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+});

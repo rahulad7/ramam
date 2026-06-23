@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSegments } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Typography } from '@/components/ui/Typography';
@@ -68,7 +68,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
               key={tab.name}
               accessibilityRole="button"
               accessibilityState={isFocused ? { selected: true } : {}}
-              className="min-w-[72px] items-center justify-center py-2 active:opacity-60"
+              style={styles.tabButton}
               onPress={onPress}
             >
               <Ionicons name={isFocused ? tab.iconFocused : tab.icon} size={22} color={color} />
@@ -85,3 +85,12 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  tabButton: {
+    minWidth: 72,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+  },
+});
