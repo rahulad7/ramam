@@ -5,7 +5,6 @@ import { RenderContent } from '@/components/reading/RenderContent';
 import { Typography } from '@/components/ui/Typography';
 import { THEME_COLORS } from '@/constants/theme';
 import { useHighlights } from '@/hooks/useHighlights';
-import { useTheme } from '@/hooks/useTheme';
 import type { SargaBlock, TKanda } from '@/types/content';
 
 type HighlightableBlockProps = SargaBlock & {
@@ -16,8 +15,6 @@ type HighlightableBlockProps = SargaBlock & {
 
 export function HighlightableBlock({ kanda, sarga, blockIndex, type, text }: HighlightableBlockProps) {
   const { isHighlighted, addHighlight, removeHighlight } = useHighlights();
-  const { isDark } = useTheme();
-  const colors = isDark ? THEME_COLORS.dark : THEME_COLORS.light;
   const saved = isHighlighted(kanda, sarga, blockIndex);
 
   async function toggleHighlight() {
@@ -42,7 +39,7 @@ export function HighlightableBlock({ kanda, sarga, blockIndex, type, text }: Hig
           <Ionicons
             name={saved ? 'color-fill' : 'color-fill-outline'}
             size={18}
-            color={saved ? colors.icon : colors.iconMuted}
+            color={saved ? THEME_COLORS.icon : THEME_COLORS.iconMuted}
           />
         </Pressable>
       </View>

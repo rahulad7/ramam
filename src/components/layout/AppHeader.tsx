@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { openScreen } from '@/lib/navigation';
+import { routes } from '@/lib/routes';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -8,7 +9,6 @@ import { APP_NAME } from '@/constants/kandas';
 import { THEME_COLORS } from '@/constants/theme';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { useDrawer } from '@/hooks/useDrawer';
-import { useTheme } from '@/hooks/useTheme';
 
 type AppHeaderProps = {
   showMenu?: boolean;
@@ -19,8 +19,6 @@ export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProp
   const insets = useSafeAreaInsets();
   const { bookmarks } = useBookmarks();
   const { openDrawer } = useDrawer();
-  const { isDark } = useTheme();
-  const colors = isDark ? THEME_COLORS.dark : THEME_COLORS.light;
 
   return (
     <View
@@ -35,7 +33,7 @@ export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProp
               style={styles.iconButton}
               onPress={openDrawer}
             >
-              <Ionicons name="menu-outline" size={24} color={colors.icon} />
+              <Ionicons name="menu-outline" size={24} color={THEME_COLORS.icon} />
             </Pressable>
           ) : null}
         </View>
@@ -52,20 +50,20 @@ export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProp
               <Pressable
                 accessibilityLabel="Bookmarks"
                 style={styles.iconButton}
-                onPress={() => router.navigate('/(tabs)/bookmarks' as never)}
+                onPress={() => openScreen(routes.bookmarks)}
               >
                 <Ionicons
                   name={bookmarks.length > 0 ? 'bookmark' : 'bookmark-outline'}
                   size={22}
-                  color={colors.icon}
+                  color={THEME_COLORS.icon}
                 />
               </Pressable>
               <Pressable
                 accessibilityLabel="Search"
                 style={styles.iconButton}
-                onPress={() => router.navigate('/(tabs)/search' as never)}
+                onPress={() => openScreen(routes.search)}
               >
-                <Ionicons name="search-outline" size={22} color={colors.icon} />
+                <Ionicons name="search-outline" size={22} color={THEME_COLORS.icon} />
               </Pressable>
             </>
           ) : null}

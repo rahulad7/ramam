@@ -1,4 +1,4 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { ScrollView, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 
@@ -8,23 +8,27 @@ import { HtmlText } from '@/components/reading/HtmlText';
 import { ReflectionCard } from '@/components/reading/ReflectionCard';
 import { Button } from '@/components/ui/Button';
 import { Divider } from '@/components/ui/Divider';
+import { ThemedView } from '@/components/ui/ThemedView';
 import { Typography } from '@/components/ui/Typography';
-import { getDailyWisdom } from '@/lib/dailyWisdom';
-import { shareText } from '@/lib/share';
 import { useNavigateSarga } from '@/hooks/useNavigateSarga';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
 import { useSarga } from '@/hooks/useSarga';
+import { openScreen } from '@/lib/navigation';
+import { shareText } from '@/lib/share';
 import { stripHtml } from '@/utils/html';
 import type { TKanda } from '@/types/content';
+
+const CHAPTER_REFLECTION =
+  'What truth in this chapter asks something of you today?';
 
 export default function SargaScreen() {
   const { kanda, sarga } = useLocalSearchParams<{ kanda: TKanda; sarga: string }>();
   const { sarga: chapter, error } = useSarga(kanda, sarga);
   const { setLastRead, saveScrollOffset, getScrollOffset, markChapterOpened } = useReadingProgress();
   const scrollRef = useRef<ScrollView>(null);
+  const restoredRef = useRef(false);
   const sargaNum = Number(sarga);
-  const { prevHref, nextHref } = useNavigateSarga(kanda, sargaNum);
-  const daily = getDailyWisdom();
+  const { prevHref, nextHref, hasPrevious, hasNext } = useNavigateSarga(kanda, sargaNum);
 
   useEffect(() => {
     if (!kanda || !sarga) return;
@@ -33,14 +37,18 @@ export default function SargaScreen() {
   }, [kanda, sarga, setLastRead, markChapterOpened]);
 
   useEffect(() => {
-    if (!kanda || !sarga) return;
+    restoredRef.current = false;
+  }, [kanda, sarga]);
+
+  function restoreScrollPosition() {
+    if (!kanda || !sarga || restoredRef.current) return;
+
     const offset = getScrollOffset(kanda, sarga);
-    if (offset > 0) {
-      requestAnimationFrame(() => {
-        scrollRef.current?.scrollTo({ y: offset, animated: false });
-      });
-    }
-  }, [kanda, sarga, getScrollOffset]);
+    if (offset <= 0) return;
+
+    restoredRef.current = true;
+    scrollRef.current?.scrollTo({ y: offset, animated: false });
+  }
 
   function handleScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
     if (!kanda || !sarga) return;
@@ -49,16 +57,16 @@ export default function SargaScreen() {
 
   if (error || !chapter) {
     return (
-      <View className="flex-1 items-center justify-center bg-background px-6">
+      <ThemedView className="flex-1 items-center justify-center bg-background px-6">
         <Typography variant="body">Chapter not found.</Typography>
-      </View>
+      </ThemedView>
     );
   }
 
   const shareMessage = `${chapter.title}\n\n${stripHtml(chapter.overview).slice(0, 400)}`;
 
   return (
-    <View className="flex-1 bg-background">
+    <ThemedView className="flex-1 bg-background">
       <ReadingHeader
         kanda={kanda}
         sarga={sarga}
@@ -71,6 +79,8 @@ export default function SargaScreen() {
         contentContainerClassName="px-5 pb-10"
         onScroll={handleScroll}
         scrollEventThrottle={120}
+        onContentSizeChange={restoreScrollPosition}
+        onLayout={restoreScrollPosition}
       >
         <Typography variant="headline" className="mt-4">
           {chapter.title}
@@ -92,13 +102,21 @@ export default function SargaScreen() {
           />
         ))}
 
-        <ReflectionCard reflection={daily?.reflection ?? 'What truth in this chapter asks something of you today?'} />
+        <ReflectionCard reflection={CHAPTER_REFLECTION} />
 
         <View className="mt-8 gap-3">
-          <Button label="Previous" variant="secondary" onPress={() => router.push(prevHref as never)} />
-          <Button label="Next" variant="primary" onPress={() => router.push(nextHref as never)} />
+          {hasPrevious && prevHref ? (
+            <Button
+              label="Previous"
+              variant="secondary"
+              onPress={() => openScreen(prevHref)}
+            />
+          ) : null}
+          {hasNext && nextHref ? (
+            <Button label="Next" variant="primary" onPress={() => openScreen(nextHref)} />
+          ) : null}
         </View>
       </ScrollView>
-    </View>
+    </ThemedView>
   );
 }

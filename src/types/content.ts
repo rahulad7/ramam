@@ -37,5 +37,3 @@ export interface KandaMeta {
   sortOrder: number;
   image: ImageSourcePropType;
 }
-
-export type ThemeMode = 'light' | 'dark';

@@ -4,6 +4,7 @@ import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/Button';
+import { ThemedView } from '@/components/ui/ThemedView';
 import { Typography } from '@/components/ui/Typography';
 import { APP_NAME, APP_TAGLINE } from '@/constants/kandas';
 import { STORAGE_KEYS } from '@/constants/storage';
@@ -62,7 +63,7 @@ export function OnboardingOverlay({ enabled = true }: OnboardingOverlayProps) {
 
   return (
     <Modal visible animationType="fade" transparent onRequestClose={finish}>
-      <View
+      <ThemedView
         style={[
           styles.scrim,
           { paddingTop: insets.top, paddingBottom: insets.bottom },
@@ -96,7 +97,7 @@ export function OnboardingOverlay({ enabled = true }: OnboardingOverlayProps) {
             </Pressable>
           </View>
         </View>
-      </View>
+      </ThemedView>
     </Modal>
   );
 }

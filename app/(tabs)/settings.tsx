@@ -1,14 +1,14 @@
 import { Alert, Pressable, ScrollView, View } from 'react-native';
 
+import { BackLink } from '@/components/layout/BackLink';
 import { ScreenShell } from '@/components/layout/ScreenShell';
 import { Button } from '@/components/ui/Button';
 import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
 import type { FontSize } from '@/types/settings';
-import { goBackOr } from '@/lib/navigation';
-import { useResetAppData } from '@/hooks/useResetAppData';
+import { routes } from '@/lib/routes';
 import { useReadingSettings } from '@/hooks/useReadingSettings';
-import { useTheme } from '@/hooks/useTheme';
+import { useResetAppData } from '@/hooks/useResetAppData';
 
 const FONT_OPTIONS: { value: FontSize; label: string }[] = [
   { value: 'sm', label: 'Small' },
@@ -17,7 +17,6 @@ const FONT_OPTIONS: { value: FontSize; label: string }[] = [
 ];
 
 export default function SettingsScreen() {
-  const { theme, toggleTheme } = useTheme();
   const { settings, setFontSize } = useReadingSettings();
   const resetAppData = useResetAppData();
 
@@ -42,9 +41,7 @@ export default function SettingsScreen() {
   return (
     <ScreenShell>
       <ScrollView className="flex-1" contentContainerClassName="px-5 pb-10">
-        <Pressable onPress={() => goBackOr('/(tabs)/profile')} className="mt-2">
-          <Typography variant="caption">← Back</Typography>
-        </Pressable>
+        <BackLink fallback={routes.profile} />
 
         <Typography variant="label-sm" className="mt-4">
           Preferences
@@ -72,20 +69,6 @@ export default function SettingsScreen() {
               </Typography>
             </Pressable>
           ))}
-        </View>
-
-        <Divider />
-
-        <Typography variant="label-sm">Appearance</Typography>
-        <Typography variant="caption" className="mt-2">
-          Theme: {theme}
-        </Typography>
-        <View className="mt-4">
-          <Button
-            label={`Use ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
-            variant="secondary"
-            onPress={toggleTheme}
-          />
         </View>
 
         <Divider />

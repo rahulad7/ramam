@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 
 import { KandaCard } from '@/components/library/KandaCard';
@@ -8,6 +7,7 @@ import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
 import { KANDAS } from '@/constants/kandas';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
+import { openChapter, openKanda } from '@/lib/navigation';
 
 export default function LibraryScreen() {
   const { lastRead, getKandaProgress, getOverallProgress } = useReadingProgress();
@@ -43,7 +43,7 @@ export default function LibraryScreen() {
               key={kanda.id}
               kanda={kanda}
               progress={getKandaProgress(kanda.id, kanda.chapterCount)}
-              onPress={() => router.navigate(`/(tabs)/library/${kanda.id}` as never)}
+              onPress={() => openKanda(kanda.id)}
             />
           ))}
         </View>
@@ -62,9 +62,7 @@ export default function LibraryScreen() {
             label="Start Reading Now"
             variant="secondary"
             onPress={() =>
-              router.push(
-                (lastRead ? `/library/${lastRead.kanda}/${lastRead.sarga}` : '/library/bala/1') as never
-              )
+              lastRead ? openChapter(lastRead.kanda, lastRead.sarga) : openChapter('bala', 1)
             }
           />
         </View>

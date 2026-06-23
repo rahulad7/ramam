@@ -1,49 +1,33 @@
-import { Ionicons } from '@expo/vector-icons';
-import { router, useLocalSearchParams } from 'expo-router';
-import { Image, Pressable, ScrollView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useLocalSearchParams } from 'expo-router';
+import { Image, ScrollView, View } from 'react-native';
 
+import { StackHeader } from '@/components/layout/StackHeader';
 import { Button } from '@/components/ui/Button';
 import { Divider } from '@/components/ui/Divider';
+import { ThemedView } from '@/components/ui/ThemedView';
 import { Typography } from '@/components/ui/Typography';
 import { getCharacter, ROLE_LABELS } from '@/constants/characters';
 import { KANDAS } from '@/constants/kandas';
-import { THEME_COLORS } from '@/constants/theme';
-import { goBackOr } from '@/lib/navigation';
-import { useTheme } from '@/hooks/useTheme';
+import { openChapter } from '@/lib/navigation';
+import { routes } from '@/lib/routes';
 
 export default function CharacterDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const character = id ? getCharacter(id) : undefined;
-  const insets = useSafeAreaInsets();
-  const { isDark } = useTheme();
-  const colors = isDark ? THEME_COLORS.dark : THEME_COLORS.light;
 
   if (!character) {
     return (
-      <View className="flex-1 items-center justify-center bg-background px-6">
+      <ThemedView className="flex-1 items-center justify-center bg-background px-6">
         <Typography variant="body">Character not found.</Typography>
-      </View>
+      </ThemedView>
     );
   }
 
   const kandaName = KANDAS.find((k) => k.id === character.kanda)?.name ?? character.kanda;
 
   return (
-    <View className="flex-1 bg-background">
-      <View className="border-b border-outline-variant bg-background" style={{ paddingTop: insets.top }}>
-        <View className="h-14 flex-row items-center px-2">
-          <Pressable
-            className="h-10 w-10 items-center justify-center"
-            onPress={() => goBackOr('/(tabs)/characters')}
-          >
-            <Ionicons name="chevron-back" size={24} color={colors.icon} />
-          </Pressable>
-          <Typography variant="label-sm" className="ml-2 flex-1 normal-case tracking-widest" numberOfLines={1}>
-            {character.name}
-          </Typography>
-        </View>
-      </View>
+    <ThemedView className="flex-1 bg-background">
+      <StackHeader title={character.name} fallback={routes.characters} />
 
       <ScrollView className="flex-1" contentContainerClassName="pb-10">
         <Image
@@ -91,13 +75,11 @@ export default function CharacterDetailScreen() {
           <View className="mt-6">
             <Button
               label={`Read ${kandaName}`}
-              onPress={() =>
-                router.push(`/library/${character.kanda}/${character.startSarga}` as never)
-              }
+              onPress={() => openChapter(character.kanda, character.startSarga)}
             />
           </View>
         </View>
       </ScrollView>
-    </View>
+    </ThemedView>
   );
 }

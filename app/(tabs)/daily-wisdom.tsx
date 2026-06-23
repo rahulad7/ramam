@@ -1,6 +1,6 @@
-import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 
+import { BackLink } from '@/components/layout/BackLink';
 import { ScreenShell } from '@/components/layout/ScreenShell';
 import { HtmlText } from '@/components/reading/HtmlText';
 import { ReflectionCard } from '@/components/reading/ReflectionCard';
@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/Button';
 import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
 import { getDailyWisdom } from '@/lib/dailyWisdom';
+import { openChapter } from '@/lib/navigation';
+import { routes } from '@/lib/routes';
 import { shareText } from '@/lib/share';
 
 export default function DailyWisdomScreen() {
@@ -26,7 +28,11 @@ export default function DailyWisdomScreen() {
   return (
     <ScreenShell>
       <ScrollView className="flex-1" contentContainerClassName="px-5 pb-10">
-        <Typography variant="label-sm">Daily Dispatch</Typography>
+        <BackLink fallback={routes.home} />
+
+        <Typography variant="label-sm" className="mt-4">
+          Daily Dispatch
+        </Typography>
         <Typography variant="headline" className="mt-2">
           Issue No. {daily.issueNumber}
         </Typography>
@@ -60,7 +66,7 @@ export default function DailyWisdomScreen() {
         <View className="mt-6 gap-3">
           <Button
             label="Read chapter"
-            onPress={() => router.push(`/library/${daily.kanda}/${daily.sarga}` as never)}
+            onPress={() => openChapter(daily.kanda, daily.sarga)}
           />
           <Button
             label="Share verse"

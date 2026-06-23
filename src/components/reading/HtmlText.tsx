@@ -5,7 +5,6 @@ import RenderHtml, { type MixedStyleDeclaration } from 'react-native-render-html
 import { FONT_SIZE_STYLES } from '@/constants/reading';
 import { THEME_COLORS } from '@/constants/theme';
 import { useReadingSettings } from '@/hooks/useReadingSettings';
-import { useTheme } from '@/hooks/useTheme';
 
 type HtmlTextProps = {
   html: string;
@@ -15,9 +14,7 @@ type HtmlTextProps = {
 
 export function HtmlText({ html, italic = false }: HtmlTextProps) {
   const { width } = useWindowDimensions();
-  const { isDark } = useTheme();
   const { settings } = useReadingSettings();
-  const palette = isDark ? THEME_COLORS.dark : THEME_COLORS.light;
   const font = FONT_SIZE_STYLES[settings.fontSize];
   const contentWidth = width - 40;
 
@@ -28,18 +25,18 @@ export function HtmlText({ html, italic = false }: HtmlTextProps) {
       fontFamily: 'LibreFranklin_400Regular',
       fontSize: font.fontSize,
       lineHeight: font.lineHeight,
-      color: palette.htmlBody,
+      color: THEME_COLORS.htmlBody,
       fontStyle: italic ? 'italic' : 'normal',
     }),
-    [italic, palette.htmlBody, font.fontSize, font.lineHeight]
+    [italic, font.fontSize, font.lineHeight]
   );
 
   const emStyle: MixedStyleDeclaration = useMemo(
     () => ({
       fontStyle: 'italic',
-      color: palette.htmlEmphasis,
+      color: THEME_COLORS.htmlEmphasis,
     }),
-    [palette.htmlEmphasis]
+    [THEME_COLORS.htmlEmphasis]
   );
 
   return (

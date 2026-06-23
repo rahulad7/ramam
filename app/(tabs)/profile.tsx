@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 
 import { ScreenShell } from '@/components/layout/ScreenShell';
@@ -9,10 +8,10 @@ import { APP_NAME, KANDAS, getKandaName } from '@/constants/kandas';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { useHighlights } from '@/hooks/useHighlights';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
-import { useTheme } from '@/hooks/useTheme';
+import { openScreen } from '@/lib/navigation';
+import { routes } from '@/lib/routes';
 
 export default function ProfileScreen() {
-  const { theme, toggleTheme } = useTheme();
   const { lastRead, stats, getOverallProgress } = useReadingProgress();
   const { bookmarks } = useBookmarks();
   const { highlights } = useHighlights();
@@ -61,23 +60,9 @@ export default function ProfileScreen() {
         <Divider />
 
         <View className="gap-3">
-          <Button label="Highlights" variant="secondary" onPress={() => router.push('/(tabs)/highlights' as never)} />
-          <Button label="Bookmarks" variant="secondary" onPress={() => router.push('/(tabs)/bookmarks' as never)} />
-          <Button label="Settings" variant="secondary" onPress={() => router.push('/(tabs)/settings' as never)} />
-        </View>
-
-        <Divider />
-
-        <Typography variant="label-sm">Appearance</Typography>
-        <Typography variant="caption" className="mt-2">
-          Current theme: {theme}
-        </Typography>
-        <View className="mt-4">
-          <Button
-            label={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
-            variant="secondary"
-            onPress={toggleTheme}
-          />
+          <Button label="Highlights" variant="secondary" onPress={() => openScreen(routes.highlights)} />
+          <Button label="Bookmarks" variant="secondary" onPress={() => openScreen(routes.bookmarks)} />
+          <Button label="Settings" variant="secondary" onPress={() => openScreen(routes.settings)} />
         </View>
 
         <Divider />

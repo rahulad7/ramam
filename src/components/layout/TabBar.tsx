@@ -6,35 +6,50 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Typography } from '@/components/ui/Typography';
 import { THEME_COLORS } from '@/constants/theme';
-import { useTheme } from '@/hooks/useTheme';
+import { popTabToRoot } from '@/lib/navigation';
+import { routes } from '@/lib/routes';
 
 type TabConfig = {
-  name: string;
+  name: 'index' | 'library' | 'search' | 'profile';
   label: string;
   icon: keyof typeof Ionicons.glyphMap;
   iconFocused: keyof typeof Ionicons.glyphMap;
+  href: typeof routes.home | typeof routes.library | typeof routes.search | typeof routes.profile;
 };
 
 const TABS: TabConfig[] = [
-  { name: 'index', label: 'Home', icon: 'home-outline', iconFocused: 'home' },
-  { name: 'library', label: 'Library', icon: 'book-outline', iconFocused: 'book' },
-  { name: 'search', label: 'Search', icon: 'search-outline', iconFocused: 'search' },
-  { name: 'profile', label: 'Account', icon: 'person-outline', iconFocused: 'person' },
+  { name: 'index', label: 'Home', icon: 'home-outline', iconFocused: 'home', href: routes.home },
+  { name: 'library', label: 'Library', icon: 'book-outline', iconFocused: 'book', href: routes.library },
+  { name: 'search', label: 'Search', icon: 'search-outline', iconFocused: 'search', href: routes.search },
+  { name: 'profile', label: 'Account', icon: 'person-outline', iconFocused: 'person', href: routes.profile },
 ];
+
+const HIDDEN_TAB_SCREENS = new Set([
+  'bookmarks',
+  'highlights',
+  'settings',
+  'daily-wisdom',
+  'characters',
+]);
+
+function shouldHideTabBar(segments: string[]) {
+  if (segments.includes('library') && segments.indexOf('library') < segments.length - 1) {
+    return true;
+  }
+
+  if (segments.includes('characters') && segments.indexOf('characters') < segments.length - 1) {
+    return true;
+  }
+
+  return segments.some((segment) => HIDDEN_TAB_SCREENS.has(segment));
+}
 
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const segments = useSegments();
-  const { isDark } = useTheme();
-  const colors = isDark ? THEME_COLORS.dark : THEME_COLORS.light;
   const focusedRouteName = state.routes[state.index]?.name;
 
-  const inNestedLibrary =
-    segments.includes('library') && segments.indexOf('library') < segments.length - 1;
-  const inNestedCharacters =
-    segments.includes('characters') && segments.indexOf('characters') < segments.length - 1;
-
-  if (inNestedLibrary || inNestedCharacters) {
+  if (shouldHideTabBar(segments)) {
     return null;
   }
 
@@ -49,7 +64,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
           if (!route) return null;
 
           const isFocused = focusedRouteName === tab.name;
-          const color = isFocused ? colors.icon : colors.iconMuted;
+          const color = isFocused ? THEME_COLORS.icon : THEME_COLORS.iconMuted;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -58,9 +73,14 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
               canPreventDefault: true,
             });
 
-            if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name);
+            if (event.defaultPrevented) return;
+
+            if (isFocused) {
+              popTabToRoot(tab.name);
+              return;
             }
+
+            navigation.navigate(route.name);
           };
 
           return (

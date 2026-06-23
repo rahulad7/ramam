@@ -1,26 +1,16 @@
+import { vars } from 'nativewind';
+
 export const THEME_CSS_VARS = {
-  light: {
-    '--color-background': '253 248 247',
-    '--color-surface-low': '247 243 241',
-    '--color-surface-container': '241 237 236',
-    '--color-surface-high': '236 231 230',
-    '--color-on-surface': '28 27 27',
-    '--color-on-surface-variant': '77 69 64',
-    '--color-primary': '24 21 18',
-    '--color-on-primary': '255 255 255',
-    '--color-outline': '126 117 111',
-    '--color-outline-variant': '207 196 189',
-  },
-  dark: {
-    '--color-background': '24 21 18',
-    '--color-surface-low': '30 27 24',
-    '--color-surface-container': '38 34 31',
-    '--color-surface-high': '46 41 38',
-    '--color-on-surface': '241 237 236',
-    '--color-on-surface-variant': '207 196 189',
-    '--color-primary': '241 237 236',
-    '--color-on-primary': '24 21 18',
-    '--color-outline': '168 155 148',
-    '--color-outline-variant': '77 69 64',
-  },
+  '--color-background': '253 248 247',
+  '--color-surface-low': '247 243 241',
+  '--color-surface-container': '241 237 236',
+  '--color-surface-high': '236 231 230',
+  '--color-on-surface': '28 27 27',
+  '--color-on-surface-variant': '77 69 64',
+  '--color-primary': '24 21 18',
+  '--color-on-primary': '255 255 255',
+  '--color-outline': '126 117 111',
+  '--color-outline-variant': '207 196 189',
 } as const;
+
+export const themeVars = vars(THEME_CSS_VARS);
