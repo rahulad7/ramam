@@ -1,9 +1,10 @@
 import '../global.css';
+import 'react-native-gesture-handler';
 
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 
 import { AnimatedSplash } from '@/components/layout/AnimatedSplash';
@@ -22,6 +23,10 @@ import { ThemeProvider } from '@/providers/ThemeProvider';
 SplashScreen.preventAutoHideAsync();
 
 const SPLASH_DURATION_MS = 2800;
+
+export const unstable_settings = {
+  initialRouteName: '(tabs)',
+};
 
 function RootLayoutNav() {
   const fontsLoaded = useAppFonts();
@@ -42,21 +47,18 @@ function RootLayoutNav() {
     return () => clearTimeout(timer);
   }, [appReady]);
 
-  if (!appReady) {
-    return <View className="flex-1 bg-background" />;
-  }
-
   return (
     <DrawerProvider>
-      <View className={isDark ? 'dark flex-1' : 'flex-1'}>
+      <View style={[styles.root, { backgroundColor }]}>
         <StatusBar style={isDark ? 'light' : 'dark'} />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor } }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(tabs)" />
-        </Stack>
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor } }} />
         <MenuDrawer />
-        <OnboardingOverlay />
-        {showSplash ? <AnimatedSplash /> : null}
+        <OnboardingOverlay enabled={appReady && !showSplash} />
+        {!appReady ? (
+          <View style={[StyleSheet.absoluteFillObject, styles.overlay, { backgroundColor }]} />
+        ) : showSplash ? (
+          <AnimatedSplash />
+        ) : null}
       </View>
     </DrawerProvider>
   );
@@ -77,3 +79,12 @@ export default function RootLayout() {
     </ThemeProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  overlay: {
+    zIndex: 50,
+  },
+});

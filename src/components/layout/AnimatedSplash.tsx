@@ -1,8 +1,10 @@
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
 
 import { Typography } from '@/components/ui/Typography';
 import { APP_EST, APP_NAME, APP_TAGLINE } from '@/constants/kandas';
+import { THEME_COLORS } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 
 function LogoMark() {
   return (
@@ -17,11 +19,14 @@ function LogoMark() {
 }
 
 export function AnimatedSplash() {
+  const { isDark } = useTheme();
+  const backgroundColor = isDark ? THEME_COLORS.dark.background : THEME_COLORS.light.background;
+
   return (
     <Animated.View
       entering={FadeIn.duration(300)}
       exiting={FadeOut.duration(400)}
-      className="absolute inset-0 z-50 items-center justify-center bg-background px-8"
+      style={[styles.root, { backgroundColor }]}
     >
       <Animated.View entering={FadeIn.duration(800)} className="items-center">
         <LogoMark />
@@ -52,3 +57,13 @@ export function AnimatedSplash() {
     </Animated.View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+  },
+});

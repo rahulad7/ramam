@@ -1,13 +1,12 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert, Pressable, ScrollView, View } from 'react-native';
 
 import { ScreenShell } from '@/components/layout/ScreenShell';
 import { Button } from '@/components/ui/Button';
 import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
-import { STORAGE_KEYS } from '@/constants/storage';
 import type { FontSize } from '@/types/settings';
 import { goBackOr } from '@/lib/navigation';
+import { useResetAppData } from '@/hooks/useResetAppData';
 import { useReadingSettings } from '@/hooks/useReadingSettings';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -20,6 +19,7 @@ const FONT_OPTIONS: { value: FontSize; label: string }[] = [
 export default function SettingsScreen() {
   const { theme, toggleTheme } = useTheme();
   const { settings, setFontSize } = useReadingSettings();
+  const resetAppData = useResetAppData();
 
   async function clearAllData() {
     Alert.alert(
@@ -31,17 +31,8 @@ export default function SettingsScreen() {
           text: 'Clear',
           style: 'destructive',
           onPress: async () => {
-            await AsyncStorage.multiRemove([
-              STORAGE_KEYS.BOOKMARKS,
-              STORAGE_KEYS.HIGHLIGHTS,
-              STORAGE_KEYS.LAST_READ,
-              STORAGE_KEYS.KANDA_PROGRESS,
-              STORAGE_KEYS.SCROLL_OFFSETS,
-              STORAGE_KEYS.OPENED_CHAPTERS,
-              STORAGE_KEYS.READING_STREAK,
-              STORAGE_KEYS.RECENT_SEARCHES,
-            ]);
-            Alert.alert('Done', 'Restart the app to see a fresh state.');
+            await resetAppData();
+            Alert.alert('Done', 'All local reading data has been cleared.');
           },
         },
       ]

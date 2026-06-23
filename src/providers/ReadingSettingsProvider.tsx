@@ -8,6 +8,7 @@ type ReadingSettingsContextValue = {
   settings: ReadingSettings;
   isReady: boolean;
   setFontSize: (size: FontSize) => Promise<void>;
+  resetSettings: () => Promise<void>;
 };
 
 export const ReadingSettingsContext = createContext<ReadingSettingsContextValue | null>(null);
@@ -36,9 +37,14 @@ export function ReadingSettingsProvider({ children }: { children: ReactNode }) {
     await AsyncStorage.setItem(STORAGE_KEYS.READING_SETTINGS, JSON.stringify(next));
   }, [settings]);
 
+  const resetSettings = useCallback(async () => {
+    setSettings(DEFAULT);
+    await AsyncStorage.setItem(STORAGE_KEYS.READING_SETTINGS, JSON.stringify(DEFAULT));
+  }, []);
+
   const value = useMemo(
-    () => ({ settings, isReady, setFontSize }),
-    [settings, isReady, setFontSize]
+    () => ({ settings, isReady, setFontSize, resetSettings }),
+    [settings, isReady, setFontSize, resetSettings]
   );
 
   return (

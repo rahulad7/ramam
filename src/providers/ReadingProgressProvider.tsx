@@ -30,6 +30,7 @@ type ReadingProgressContextValue = {
   getScrollOffset: (kanda: TKanda, sarga: string) => number;
   markChapterOpened: (kanda: TKanda, sarga: string) => Promise<void>;
   stats: ReadingStats;
+  resetProgress: () => Promise<void>;
 };
 
 export const ReadingProgressContext = createContext<ReadingProgressContextValue | null>(null);
@@ -151,21 +152,37 @@ export function ReadingProgressProvider({ children }: { children: ReactNode }) {
 
   const getKandaProgress = useCallback(
     (kanda: TKanda, chapterCount: number) => {
-      const highest = kandaProgress[kanda] ?? 0;
-      if (!highest || !chapterCount) return 0;
-      return Math.min(highest / chapterCount, 1);
+      const openedInKanda = Object.keys(openedChapters).filter((key) => key.startsWith(`${kanda}-`)).length;
+      if (!chapterCount) return 0;
+      return Math.min(openedInKanda / chapterCount, 1);
     },
-    [kandaProgress]
+    [openedChapters]
   );
 
   const getOverallProgress = useCallback(
     (totalChapters: number) => {
-      const readCount = Object.values(kandaProgress).reduce((sum, n) => sum + (n ?? 0), 0);
+      const readCount = Object.keys(openedChapters).length;
       if (!totalChapters) return 0;
       return Math.min(readCount / totalChapters, 1);
     },
-    [kandaProgress]
+    [openedChapters]
   );
+
+  const resetProgress = useCallback(async () => {
+    setLastReadState(null);
+    setKandaProgress({});
+    setScrollOffsets({});
+    setOpenedChapters({});
+    setStreakDays(0);
+    setLastReadDate(null);
+    await AsyncStorage.multiRemove([
+      STORAGE_KEYS.LAST_READ,
+      STORAGE_KEYS.KANDA_PROGRESS,
+      STORAGE_KEYS.SCROLL_OFFSETS,
+      STORAGE_KEYS.OPENED_CHAPTERS,
+      STORAGE_KEYS.READING_STREAK,
+    ]);
+  }, []);
 
   const stats = useMemo<ReadingStats>(
     () => ({
@@ -187,6 +204,7 @@ export function ReadingProgressProvider({ children }: { children: ReactNode }) {
       getScrollOffset,
       markChapterOpened,
       stats,
+      resetProgress,
     }),
     [
       lastRead,
@@ -198,6 +216,7 @@ export function ReadingProgressProvider({ children }: { children: ReactNode }) {
       getScrollOffset,
       markChapterOpened,
       stats,
+      resetProgress,
     ]
   );
 

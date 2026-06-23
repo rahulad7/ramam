@@ -11,6 +11,7 @@ type ThemeContextValue = {
   isReady: boolean;
   toggleTheme: () => void;
   setTheme: (mode: ThemeMode) => void;
+  resetTheme: () => Promise<void>;
 };
 
 export const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -50,6 +51,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     setTheme(theme === 'light' ? 'dark' : 'light');
   }, [setTheme, theme]);
 
+  const resetTheme = useCallback(async () => {
+    setThemeState('light');
+    await AsyncStorage.setItem(STORAGE_KEYS.THEME, 'light');
+  }, []);
+
   const value = useMemo<ThemeContextValue>(
     () => ({
       theme,
@@ -57,8 +63,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       isReady,
       toggleTheme,
       setTheme,
+      resetTheme,
     }),
-    [theme, isReady, toggleTheme, setTheme]
+    [theme, isReady, toggleTheme, setTheme, resetTheme]
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

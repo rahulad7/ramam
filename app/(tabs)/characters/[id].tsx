@@ -39,7 +39,7 @@ export default function CharacterDetailScreen() {
           >
             <Ionicons name="chevron-back" size={24} color={colors.icon} />
           </Pressable>
-          <Typography variant="label-sm" className="ml-2 normal-case tracking-widest">
+          <Typography variant="label-sm" className="ml-2 flex-1 normal-case tracking-widest" numberOfLines={1}>
             {character.name}
           </Typography>
         </View>

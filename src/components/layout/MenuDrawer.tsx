@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Modal, Pressable, ScrollView, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, SlideInLeft } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ThemedView } from '@/components/ui/ThemedView';
 import { Typography } from '@/components/ui/Typography';
 import { APP_NAME, APP_TAGLINE } from '@/constants/kandas';
 import { THEME_COLORS } from '@/constants/theme';
@@ -28,6 +29,19 @@ const MENU_ITEMS: MenuItem[] = [
   { label: 'Settings', icon: 'settings-outline', href: '/(tabs)/settings' },
 ];
 
+const DRAWER_WIDTH = 288;
+
+const styles = StyleSheet.create({
+  drawerRoot: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  },
+});
+
 export function MenuDrawer() {
   const { isOpen, closeDrawer } = useDrawer();
   const { isDark, theme, toggleTheme } = useTheme();
@@ -36,20 +50,21 @@ export function MenuDrawer() {
 
   function navigate(href: string) {
     closeDrawer();
-    router.push(href as never);
+    router.navigate(href as never);
   }
 
   return (
     <Modal visible={isOpen} transparent animationType="none" onRequestClose={closeDrawer}>
-      <View className="flex-1 flex-row">
-        <Pressable className="flex-1 bg-black/40" onPress={closeDrawer}>
-          <Animated.View entering={FadeIn.duration(200)} className="flex-1" />
-        </Pressable>
-
+      <ThemedView style={styles.drawerRoot}>
         <Animated.View
           entering={SlideInLeft.duration(260)}
-          className="w-[82%] max-w-[320px] bg-background"
-          style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+          className="h-full bg-background border-r border-outline-variant"
+          style={{
+            width: DRAWER_WIDTH,
+            maxWidth: '85%',
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+          }}
         >
           <View className="border-b border-outline-variant px-5 py-5">
             <Typography variant="label">{APP_NAME}</Typography>
@@ -58,26 +73,34 @@ export function MenuDrawer() {
             </Typography>
           </View>
 
-          <ScrollView className="flex-1 px-3 py-4">
+          <ScrollView className="flex-1" contentContainerClassName="px-3 py-4">
             {MENU_ITEMS.map((item) => (
               <Pressable
                 key={item.label}
-                className="mb-1 flex-row items-center gap-3 px-3 py-3 active:bg-surface-low"
+                className="mb-1 flex-row items-center px-3 py-3 active:bg-surface-low"
                 onPress={() => navigate(item.href)}
               >
-                <Ionicons name={item.icon} size={20} color={colors.icon} />
-                <Typography variant="body">{item.label}</Typography>
+                <View className="w-7 items-center">
+                  <Ionicons name={item.icon} size={20} color={colors.icon} />
+                </View>
+                <Typography variant="body" className="ml-3">
+                  {item.label}
+                </Typography>
               </Pressable>
             ))}
 
-            <View className="my-4 h-px bg-outline-variant" />
+            <View className="my-4 mx-3 h-px bg-outline-variant" />
 
             <Pressable
-              className="flex-row items-center gap-3 px-3 py-3 active:bg-surface-low"
+              className="flex-row items-center px-3 py-3 active:bg-surface-low"
               onPress={toggleTheme}
             >
-              <Ionicons name={isDark ? 'sunny-outline' : 'moon-outline'} size={20} color={colors.icon} />
-              <Typography variant="body">{theme === 'light' ? 'Dark mode' : 'Light mode'}</Typography>
+              <View className="w-7 items-center">
+                <Ionicons name={isDark ? 'sunny-outline' : 'moon-outline'} size={20} color={colors.icon} />
+              </View>
+              <Typography variant="body" className="ml-3">
+                {theme === 'light' ? 'Dark mode' : 'Light mode'}
+              </Typography>
             </Pressable>
           </ScrollView>
 
@@ -85,7 +108,11 @@ export function MenuDrawer() {
             <Typography variant="caption">Offline · 534 chapters bundled</Typography>
           </View>
         </Animated.View>
-      </View>
+
+        <Pressable style={styles.backdrop} onPress={closeDrawer}>
+          <Animated.View entering={FadeIn.duration(200)} style={styles.backdrop} />
+        </Pressable>
+      </ThemedView>
     </Modal>
   );
 }

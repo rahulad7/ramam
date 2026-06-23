@@ -15,6 +15,7 @@ type HighlightsContextValue = {
   updateNote: (id: string, note: string) => Promise<void>;
   isHighlighted: (kanda: TKanda, sarga: string, blockIndex: number) => boolean;
   getChapterHighlights: (kanda: TKanda, sarga: string) => Highlight[];
+  resetHighlights: () => Promise<void>;
 };
 
 export const HighlightsContext = createContext<HighlightsContextValue | null>(null);
@@ -92,6 +93,11 @@ export function HighlightsProvider({ children }: { children: ReactNode }) {
     [highlights]
   );
 
+  const resetHighlights = useCallback(async () => {
+    setHighlights([]);
+    await AsyncStorage.removeItem(STORAGE_KEYS.HIGHLIGHTS);
+  }, []);
+
   const value = useMemo(
     () => ({
       highlights,
@@ -101,8 +107,9 @@ export function HighlightsProvider({ children }: { children: ReactNode }) {
       updateNote,
       isHighlighted,
       getChapterHighlights,
+      resetHighlights,
     }),
-    [highlights, isReady, addHighlight, removeHighlight, updateNote, isHighlighted, getChapterHighlights]
+    [highlights, isReady, addHighlight, removeHighlight, updateNote, isHighlighted, getChapterHighlights, resetHighlights]
   );
 
   return <HighlightsContext.Provider value={value}>{children}</HighlightsContext.Provider>;

@@ -1,7 +1,8 @@
 import { type ReactNode } from 'react';
-import { View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { AppHeader } from '@/components/layout/AppHeader';
+import { ThemedView } from '@/components/ui/ThemedView';
 
 type ScreenShellProps = {
   children: ReactNode;
@@ -10,9 +11,15 @@ type ScreenShellProps = {
 
 export function ScreenShell({ children, showHeader = true }: ScreenShellProps) {
   return (
-    <View className="flex-1 bg-background">
+    <ThemedView style={styles.root}>
       {showHeader ? <AppHeader /> : null}
       {children}
-    </View>
+    </ThemedView>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});

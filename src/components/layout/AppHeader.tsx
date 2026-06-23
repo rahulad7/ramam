@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Typography } from '@/components/ui/Typography';
@@ -27,12 +27,12 @@ export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProp
       className="bg-background border-b border-outline-variant"
       style={{ paddingTop: insets.top }}
     >
-      <View className="h-14 flex-row items-center justify-between px-4">
-        <View className="w-10">
+      <View className="relative h-14 flex-row items-center justify-between px-4">
+        <View className="z-10 w-10">
           {showMenu ? (
             <Pressable
               accessibilityLabel="Menu"
-              className="h-10 w-10 items-center justify-center active:opacity-60"
+              style={styles.iconButton}
               onPress={openDrawer}
             >
               <Ionicons name="menu-outline" size={24} color={colors.icon} />
@@ -40,17 +40,19 @@ export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProp
           ) : null}
         </View>
 
-        <Typography variant="label" className="tracking-[0.35em]">
-          {APP_NAME.toUpperCase()}
-        </Typography>
+        <View className="pointer-events-none absolute inset-x-0 items-center">
+          <Typography variant="label" className="tracking-[0.35em]">
+            {APP_NAME.toUpperCase()}
+          </Typography>
+        </View>
 
-        <View className="w-20 flex-row items-center justify-end gap-1">
+        <View className="z-10 w-20 flex-row items-center justify-end gap-1">
           {showActions ? (
             <>
               <Pressable
                 accessibilityLabel="Bookmarks"
-                className="h-10 w-10 items-center justify-center active:opacity-60"
-                onPress={() => router.push('/(tabs)/bookmarks' as never)}
+                style={styles.iconButton}
+                onPress={() => router.navigate('/(tabs)/bookmarks' as never)}
               >
                 <Ionicons
                   name={bookmarks.length > 0 ? 'bookmark' : 'bookmark-outline'}
@@ -60,8 +62,8 @@ export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProp
               </Pressable>
               <Pressable
                 accessibilityLabel="Search"
-                className="h-10 w-10 items-center justify-center active:opacity-60"
-                onPress={() => router.push('/(tabs)/search' as never)}
+                style={styles.iconButton}
+                onPress={() => router.navigate('/(tabs)/search' as never)}
               >
                 <Ionicons name="search-outline" size={22} color={colors.icon} />
               </Pressable>
@@ -72,3 +74,12 @@ export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProp
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  iconButton: {
+    height: 40,
+    width: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

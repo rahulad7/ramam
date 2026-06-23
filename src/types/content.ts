@@ -1,3 +1,5 @@
+import type { ImageSourcePropType } from 'react-native';
+
 export type TKanda = 'bala' | 'ayodhya' | 'aranya' | 'kishkindha' | 'sundara' | 'yuddha';
 
 export type SargaBlockType = 'verse' | 'commentary' | 'conceptual' | 'sanskrit';
@@ -33,6 +35,7 @@ export interface KandaMeta {
   description: string;
   chapterCount: number;
   sortOrder: number;
+  image: ImageSourcePropType;
 }
 
 export type ThemeMode = 'light' | 'dark';

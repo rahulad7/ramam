@@ -13,6 +13,7 @@ type BookmarksContextValue = {
   removeBookmark: (id: string) => Promise<void>;
   toggleBookmark: (kanda: TKanda, sarga: string) => Promise<void>;
   isBookmarked: (kanda: TKanda, sarga: string) => boolean;
+  resetBookmarks: () => Promise<void>;
 };
 
 export const BookmarksContext = createContext<BookmarksContextValue | null>(null);
@@ -94,6 +95,11 @@ export function BookmarksProvider({ children }: BookmarksProviderProps) {
     [bookmarks]
   );
 
+  const resetBookmarks = useCallback(async () => {
+    setBookmarks([]);
+    await AsyncStorage.removeItem(STORAGE_KEYS.BOOKMARKS);
+  }, []);
+
   const value = useMemo(
     () => ({
       bookmarks,
@@ -102,8 +108,9 @@ export function BookmarksProvider({ children }: BookmarksProviderProps) {
       removeBookmark,
       toggleBookmark,
       isBookmarked,
+      resetBookmarks,
     }),
-    [bookmarks, isReady, addBookmark, removeBookmark, toggleBookmark, isBookmarked]
+    [bookmarks, isReady, addBookmark, removeBookmark, toggleBookmark, isBookmarked, resetBookmarks]
   );
 
   return <BookmarksContext.Provider value={value}>{children}</BookmarksContext.Provider>;

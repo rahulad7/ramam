@@ -43,7 +43,7 @@ export default function LibraryScreen() {
               key={kanda.id}
               kanda={kanda}
               progress={getKandaProgress(kanda.id, kanda.chapterCount)}
-              onPress={() => router.push(`/library/${kanda.id}` as never)}
+              onPress={() => router.navigate(`/(tabs)/library/${kanda.id}` as never)}
             />
           ))}
         </View>
