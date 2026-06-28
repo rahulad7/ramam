@@ -40,8 +40,8 @@ export default function HomeScreen() {
               label="Resume"
               onPress={() =>
                 lastRead
-                  ? openChapter(lastRead.kanda, lastRead.sarga)
-                  : openChapter('bala', 1)
+                  ? openChapter(lastRead.kanda, lastRead.sarga, { returnTo: routes.home })
+                  : openChapter('bala', 1, { returnTo: routes.home })
               }
             />
           </View>
@@ -67,12 +67,14 @@ export default function HomeScreen() {
             <View className="mt-4 gap-3">
               <Button
                 label="Read full chapter"
-                onPress={() => openChapter(daily.kanda, daily.sarga)}
+                onPress={() =>
+                  openChapter(daily.kanda, daily.sarga, { returnTo: routes.home })
+                }
               />
               <Button
                 label="Open Daily Wisdom"
                 variant="secondary"
-                onPress={() => openScreen(routes.dailyWisdom)}
+                onPress={() => openScreen(routes.dailyWisdom, { returnTo: routes.home })}
               />
             </View>
           </View>
@@ -82,7 +84,7 @@ export default function HomeScreen() {
 
         <View className="flex-row items-center justify-between">
           <Typography variant="label-sm">Characters</Typography>
-          <Pressable onPress={() => openScreen(routes.characters)}>
+          <Pressable onPress={() => openScreen(routes.characters, { returnTo: routes.home })}>
             <Typography variant="caption">See all</Typography>
           </Pressable>
         </View>
@@ -98,7 +100,9 @@ export default function HomeScreen() {
                 key={character.id}
                 character={character}
                 compact
-                onPress={() => openScreen(routes.character(character.id))}
+                onPress={() =>
+                  openScreen(routes.character(character.id), { returnTo: routes.home })
+                }
               />
             ))}
           </View>

@@ -45,49 +45,67 @@ export function BookmarksProvider({ children }: BookmarksProviderProps) {
     loadBookmarks();
   }, []);
 
-  const persist = useCallback(async (next: Bookmark[]) => {
-    setBookmarks(next);
-    await AsyncStorage.setItem(STORAGE_KEYS.BOOKMARKS, JSON.stringify(next));
+  const commitBookmarks = useCallback((updater: (prev: Bookmark[]) => Bookmark[]) => {
+    setBookmarks((prev) => {
+      const next = updater(prev);
+      if (next === prev) return prev;
+      void AsyncStorage.setItem(STORAGE_KEYS.BOOKMARKS, JSON.stringify(next));
+      return next;
+    });
   }, []);
 
   const addBookmark = useCallback(
     async (kanda: TKanda, sarga: string) => {
       const id = bookmarkId(kanda, sarga);
-      if (bookmarks.some((item) => item.id === id)) return;
-
       const chapter = getSarga(kanda, sarga);
-      const next: Bookmark[] = [
-        {
-          id,
-          kanda,
-          sarga,
-          title: chapter?.title ?? `Chapter ${sarga}`,
-          createdAt: new Date().toISOString(),
-        },
-        ...bookmarks,
-      ];
-      await persist(next);
+
+      commitBookmarks((prev) => {
+        if (prev.some((item) => item.id === id)) return prev;
+
+        return [
+          {
+            id,
+            kanda,
+            sarga,
+            title: chapter?.title ?? `Chapter ${sarga}`,
+            createdAt: new Date().toISOString(),
+          },
+          ...prev,
+        ];
+      });
     },
-    [bookmarks, persist]
+    [commitBookmarks]
   );
 
   const removeBookmark = useCallback(
     async (id: string) => {
-      await persist(bookmarks.filter((item) => item.id !== id));
+      commitBookmarks((prev) => prev.filter((item) => item.id !== id));
     },
-    [bookmarks, persist]
+    [commitBookmarks]
   );
 
   const toggleBookmark = useCallback(
     async (kanda: TKanda, sarga: string) => {
       const id = bookmarkId(kanda, sarga);
-      if (bookmarks.some((item) => item.id === id)) {
-        await removeBookmark(id);
-      } else {
-        await addBookmark(kanda, sarga);
-      }
+      commitBookmarks((prev) => {
+        if (prev.some((item) => item.id === id)) {
+          return prev.filter((item) => item.id !== id);
+        }
+
+        const chapter = getSarga(kanda, sarga);
+        return [
+          {
+            id,
+            kanda,
+            sarga,
+            title: chapter?.title ?? `Chapter ${sarga}`,
+            createdAt: new Date().toISOString(),
+          },
+          ...prev,
+        ];
+      });
     },
-    [addBookmark, bookmarks, removeBookmark]
+    [commitBookmarks]
   );
 
   const isBookmarked = useCallback(

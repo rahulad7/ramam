@@ -10,6 +10,7 @@
     "generate:content": "node scripts/generate-content-map.mjs",
     "generate:search": "node scripts/generate-search-index.mjs",
     "generate:icons": "python3 scripts/generate-app-icons.py",
+    "generate:characters": "python3 scripts/optimize-character-portraits.py",
     "generate": "npm run generate:content && npm run generate:search"
   },
   "dependencies": {
@@ -21,6 +22,7 @@
     "expo": "~54.0.0",
     "expo-constants": "~18.0.0",
     "expo-font": "~14.0.0",
+    "expo-image": "~3.0.11",
     "expo-linking": "~8.0.0",
     "expo-router": "~6.0.24",
     "expo-splash-screen": "~31.0.13",

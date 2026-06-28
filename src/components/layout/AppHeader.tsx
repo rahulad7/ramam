@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { APP_NAME } from '@/constants/kandas';
 import { THEME_COLORS } from '@/constants/theme';
+import { useCurrentHref } from '@/hooks/useCurrentHref';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { useDrawer } from '@/hooks/useDrawer';
 
@@ -17,6 +18,7 @@ type AppHeaderProps = {
 
 export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProps) {
   const insets = useSafeAreaInsets();
+  const currentHref = useCurrentHref();
   const { bookmarks } = useBookmarks();
   const { openDrawer } = useDrawer();
 
@@ -50,7 +52,7 @@ export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProp
               <Pressable
                 accessibilityLabel="Bookmarks"
                 style={styles.iconButton}
-                onPress={() => openScreen(routes.bookmarks)}
+                onPress={() => openScreen(routes.bookmarks, { returnTo: currentHref })}
               >
                 <Ionicons
                   name={bookmarks.length > 0 ? 'bookmark' : 'bookmark-outline'}
@@ -61,7 +63,7 @@ export function AppHeader({ showMenu = true, showActions = true }: AppHeaderProp
               <Pressable
                 accessibilityLabel="Search"
                 style={styles.iconButton}
-                onPress={() => openScreen(routes.search)}
+                onPress={() => openScreen(routes.search, { returnTo: currentHref })}
               >
                 <Ionicons name="search-outline" size={22} color={THEME_COLORS.icon} />
               </Pressable>

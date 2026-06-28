@@ -1,34 +1,66 @@
-import MiniSearch from 'minisearch';
+import MiniSearch, { type AsPlainObject } from 'minisearch';
 
-import { searchDocuments, type SearchDocument } from '@/generated/searchIndex';
+import engineJson from '../../assets/search/engine.json';
+import type { SearchDocument } from '@/generated/searchIndex';
 
-export type SearchResult = SearchDocument & {
-  score: number;
+export type SearchResult = {
+  id: string;
+  kanda: SearchDocument['kanda'];
+  sarga: string;
+  title: string;
   matchField: 'title' | 'overview' | 'body';
   excerpt: string;
+  score: number;
+};
+
+const SEARCH_FIELDS = ['title', 'overview', 'body'] as const;
+const STORE_FIELDS = ['kanda', 'sarga', 'title', 'overview', 'body'] as const;
+
+const ENGINE_OPTIONS = {
+  fields: [...SEARCH_FIELDS],
+  storeFields: [...STORE_FIELDS],
+  searchOptions: {
+    boost: { title: 5, overview: 2, body: 1 },
+    fuzzy: 0.12,
+    prefix: true,
+  },
 };
 
 let engine: MiniSearch<SearchDocument> | null = null;
+let engineReady: Promise<void> | null = null;
 
-function getEngine(): MiniSearch<SearchDocument> {
-  if (!engine) {
-    engine = new MiniSearch<SearchDocument>({
-      fields: ['title', 'overview', 'body'],
-      storeFields: ['kanda', 'sarga', 'title', 'overview', 'body'],
-      searchOptions: {
-        boost: { title: 4, overview: 2, body: 1 },
-        fuzzy: 0.15,
-        prefix: true,
-      },
-    });
-    engine.addAll(searchDocuments);
+function loadEngine(): Promise<MiniSearch<SearchDocument>> {
+  if (typeof engineJson === 'string') {
+    return MiniSearch.loadJSONAsync<SearchDocument>(engineJson, ENGINE_OPTIONS);
   }
 
-  return engine;
+  return MiniSearch.loadJSAsync<SearchDocument>(engineJson as AsPlainObject, ENGINE_OPTIONS);
 }
 
-function excerptFor(doc: SearchDocument, query: string): { field: SearchResult['matchField']; text: string } {
-  const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+export function warmSearchIndex(): Promise<void> {
+  if (engine) return Promise.resolve();
+  if (!engineReady) {
+    engineReady = loadEngine().then((loaded) => {
+      engine = loaded;
+    });
+  }
+  return engineReady;
+}
+
+async function getEngine(): Promise<MiniSearch<SearchDocument>> {
+  await warmSearchIndex();
+  return engine!;
+}
+
+function excerptFor(
+  doc: Pick<SearchDocument, 'title' | 'overview' | 'body'>,
+  query: string
+): { field: SearchResult['matchField']; text: string } {
+  const term = query.toLowerCase().split(/\s+/).filter(Boolean)[0] ?? '';
+  if (!term) {
+    return { field: 'overview', text: doc.overview.slice(0, 140) };
+  }
+
   const fields: Array<{ key: SearchResult['matchField']; text: string }> = [
     { key: 'title', text: doc.title },
     { key: 'overview', text: doc.overview },
@@ -37,29 +69,34 @@ function excerptFor(doc: SearchDocument, query: string): { field: SearchResult['
 
   for (const field of fields) {
     const lower = field.text.toLowerCase();
-    const hit = terms.find((term) => lower.includes(term));
-    if (!hit) continue;
+    const index = lower.indexOf(term);
+    if (index === -1) continue;
 
-    const index = lower.indexOf(hit);
     const start = Math.max(0, index - 60);
-    const end = Math.min(field.text.length, index + hit.length + 80);
+    const end = Math.min(field.text.length, index + term.length + 80);
     const slice = field.text.slice(start, end).trim();
-    const prefix = start > 0 ? '…' : '';
-    const suffix = end < field.text.length ? '…' : '';
-    return { field: field.key, text: `${prefix}${slice}${suffix}` };
+    return {
+      field: field.key,
+      text: `${start > 0 ? '…' : ''}${slice}${end < field.text.length ? '…' : ''}`,
+    };
   }
 
   return { field: 'overview', text: doc.overview.slice(0, 140) };
 }
 
-export function searchChapters(query: string, limit = 40): SearchResult[] {
+export async function searchChapters(query: string, limit = 30): Promise<SearchResult[]> {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const results = getEngine().search(trimmed);
+  const index = await getEngine();
+  let results = index.search(trimmed, { fuzzy: 0.12, prefix: true });
+
+  if (results.length === 0 && trimmed.length > 3) {
+    results = index.search(trimmed, { fuzzy: 0.2, prefix: true });
+  }
 
   return results.slice(0, limit).map((result) => {
-    const doc: SearchDocument = {
+    const doc = {
       id: String(result.id),
       kanda: result.kanda as SearchDocument['kanda'],
       sarga: String(result.sarga),
@@ -70,10 +107,17 @@ export function searchChapters(query: string, limit = 40): SearchResult[] {
     const { field, text } = excerptFor(doc, trimmed);
 
     return {
-      ...doc,
+      id: doc.id,
+      kanda: doc.kanda,
+      sarga: doc.sarga,
+      title: doc.title,
       score: result.score,
       matchField: field,
       excerpt: text,
     };
   });
+}
+
+export function isSearchIndexReady() {
+  return engine !== null;
 }

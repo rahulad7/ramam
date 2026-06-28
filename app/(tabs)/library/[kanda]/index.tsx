@@ -26,7 +26,7 @@ export default function KandaScreen() {
 
   return (
     <ThemedView className="flex-1 bg-background">
-      <StackHeader title={kandaMeta.name} fallback={routes.library} />
+      <StackHeader title={kandaMeta.name} fallback={routes.library} parentOnly />
 
       <ScrollView className="flex-1" contentContainerClassName="pb-10">
         <Image

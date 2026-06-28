@@ -1,8 +1,10 @@
+import { memo } from 'react';
 import { Pressable } from 'react-native';
 
 import { Typography } from '@/components/ui/Typography';
 import { KANDAS } from '@/constants/kandas';
 import { openChapter } from '@/lib/navigation';
+import { routes } from '@/lib/routes';
 import type { SearchResult } from '@/lib/search';
 
 type SearchResultCardProps = {
@@ -10,7 +12,10 @@ type SearchResultCardProps = {
   onPress?: () => void;
 };
 
-export function SearchResultCard({ result, onPress }: SearchResultCardProps) {
+export const SearchResultCard = memo(function SearchResultCard({
+  result,
+  onPress,
+}: SearchResultCardProps) {
   const kandaName = KANDAS.find((item) => item.id === result.kanda)?.name ?? result.kanda;
 
   return (
@@ -18,7 +23,7 @@ export function SearchResultCard({ result, onPress }: SearchResultCardProps) {
       className="border border-outline-variant bg-surface-low px-4 py-4 active:bg-surface-container"
       onPress={() => {
         onPress?.();
-        openChapter(result.kanda, result.sarga);
+        openChapter(result.kanda, result.sarga, { returnTo: routes.search });
       }}
     >
       <Typography variant="label-sm" className="normal-case tracking-normal">
@@ -32,4 +37,4 @@ export function SearchResultCard({ result, onPress }: SearchResultCardProps) {
       </Typography>
     </Pressable>
   );
-}
+});

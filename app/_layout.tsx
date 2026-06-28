@@ -45,6 +45,16 @@ function RootLayoutNav() {
     return () => clearTimeout(timer);
   }, [fontsLoaded]);
 
+  useEffect(() => {
+    if (!fontsLoaded || showSplash) return;
+
+    const warmup = setTimeout(() => {
+      void import('@/lib/search').then(({ warmSearchIndex }) => warmSearchIndex());
+    }, 250);
+
+    return () => clearTimeout(warmup);
+  }, [fontsLoaded, showSplash]);
+
   return (
     <DrawerProvider>
       <View style={[styles.root, themeVars, { backgroundColor }]}>

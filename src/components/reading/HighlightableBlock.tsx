@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { memo, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { RenderContent } from '@/components/reading/RenderContent';
@@ -13,15 +14,29 @@ type HighlightableBlockProps = SargaBlock & {
   blockIndex: number;
 };
 
-export function HighlightableBlock({ kanda, sarga, blockIndex, type, text }: HighlightableBlockProps) {
+export const HighlightableBlock = memo(function HighlightableBlock({
+  kanda,
+  sarga,
+  blockIndex,
+  type,
+  text,
+}: HighlightableBlockProps) {
   const { isHighlighted, addHighlight, removeHighlight } = useHighlights();
   const saved = isHighlighted(kanda, sarga, blockIndex);
+  const [isToggling, setIsToggling] = useState(false);
 
   async function toggleHighlight() {
-    if (saved) {
-      await removeHighlight(`${kanda}-${sarga}-${blockIndex}`);
-    } else {
-      await addHighlight({ kanda, sarga, blockIndex, blockType: type, text });
+    if (isToggling) return;
+
+    setIsToggling(true);
+    try {
+      if (saved) {
+        await removeHighlight(`${kanda}-${sarga}-${blockIndex}`);
+      } else {
+        await addHighlight({ kanda, sarga, blockIndex, blockType: type, text });
+      }
+    } finally {
+      setIsToggling(false);
     }
   }
 
@@ -35,6 +50,7 @@ export function HighlightableBlock({ kanda, sarga, blockIndex, type, text }: Hig
           accessibilityLabel={saved ? 'Remove highlight' : 'Highlight passage'}
           className="h-8 w-8 items-center justify-center active:opacity-60"
           onPress={toggleHighlight}
+          disabled={isToggling}
         >
           <Ionicons
             name={saved ? 'color-fill' : 'color-fill-outline'}
@@ -46,4 +62,4 @@ export function HighlightableBlock({ kanda, sarga, blockIndex, type, text }: Hig
       <RenderContent type={type} text={text} />
     </View>
   );
-}
+});

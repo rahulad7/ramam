@@ -1,16 +1,19 @@
-import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Alert, InteractionManager, Pressable, ScrollView, View } from 'react-native';
 
 import { BackLink } from '@/components/layout/BackLink';
 import { ScreenShell } from '@/components/layout/ScreenShell';
 import { Divider } from '@/components/ui/Divider';
 import { Typography } from '@/components/ui/Typography';
 import { getKandaName } from '@/constants/kandas';
+import { THEME_COLORS } from '@/constants/theme';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { openChapter } from '@/lib/navigation';
 import { routes } from '@/lib/routes';
 
 export default function BookmarksScreen() {
   const { bookmarks, removeBookmark } = useBookmarks();
+  const [openingId, setOpeningId] = useState<string | null>(null);
 
   function confirmRemove(id: string, title: string) {
     Alert.alert('Remove bookmark?', title, [
@@ -21,6 +24,16 @@ export default function BookmarksScreen() {
         onPress: () => removeBookmark(id),
       },
     ]);
+  }
+
+  function openBookmark(bookmark: (typeof bookmarks)[number]) {
+    if (openingId) return;
+
+    setOpeningId(bookmark.id);
+    InteractionManager.runAfterInteractions(() => {
+      openChapter(bookmark.kanda, bookmark.sarga, { returnTo: routes.bookmarks });
+      setOpeningId(null);
+    });
   }
 
   return (
@@ -43,24 +56,36 @@ export default function BookmarksScreen() {
           </Typography>
         ) : (
           <View className="gap-3">
-            {bookmarks.map((bookmark) => (
-              <Pressable
-                key={bookmark.id}
-                className="border border-outline-variant bg-surface-low px-4 py-4 active:bg-surface-container"
-                onPress={() => openChapter(bookmark.kanda, bookmark.sarga)}
-                onLongPress={() => confirmRemove(bookmark.id, bookmark.title)}
-              >
-                <Typography variant="label-sm" className="normal-case tracking-normal">
-                  {getKandaName(bookmark.kanda)} · Chapter {bookmark.sarga}
-                </Typography>
-                <Typography variant="body" className="mt-2">
-                  {bookmark.title}
-                </Typography>
-                <Typography variant="caption" className="mt-2">
-                  Long press to remove
-                </Typography>
-              </Pressable>
-            ))}
+            {bookmarks.map((bookmark) => {
+              const isOpening = openingId === bookmark.id;
+
+              return (
+                <Pressable
+                  key={bookmark.id}
+                  className="border border-outline-variant bg-surface-low px-4 py-4 active:bg-surface-container"
+                  onPress={() => openBookmark(bookmark)}
+                  onLongPress={() => confirmRemove(bookmark.id, bookmark.title)}
+                  disabled={isOpening}
+                >
+                  <View className="flex-row items-start justify-between gap-3">
+                    <View className="flex-1">
+                      <Typography variant="label-sm" className="normal-case tracking-normal">
+                        {getKandaName(bookmark.kanda)} · Chapter {bookmark.sarga}
+                      </Typography>
+                      <Typography variant="body" className="mt-2">
+                        {bookmark.title}
+                      </Typography>
+                      <Typography variant="caption" className="mt-2">
+                        Long press to remove
+                      </Typography>
+                    </View>
+                    {isOpening ? (
+                      <ActivityIndicator size="small" color={THEME_COLORS.icon} />
+                    ) : null}
+                  </View>
+                </Pressable>
+              );
+            })}
           </View>
         )}
       </ScrollView>
