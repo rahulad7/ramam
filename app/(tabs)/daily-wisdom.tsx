@@ -66,7 +66,9 @@ export default function DailyWisdomScreen() {
         <View className="mt-6 gap-3">
           <Button
             label="Read chapter"
-            onPress={() => openChapter(daily.kanda, daily.sarga)}
+            onPress={() =>
+              openChapter(daily.kanda, daily.sarga, { returnTo: routes.dailyWisdom })
+            }
           />
           <Button
             label="Share verse"

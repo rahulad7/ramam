@@ -13,9 +13,11 @@
       "backgroundColor": "#fdf8f7"
     },
     "ios": {
+      "bundleIdentifier": "com.ramam.app",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.ramam.app",
       "adaptiveIcon": {
         "backgroundColor": "#fdf8f7",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -28,6 +30,17 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-    "plugins": ["expo-router", "expo-font", "expo-splash-screen"]
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-splash-screen"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8beedd48-d66d-4c83-a100-132fae14cf0f"
+      }
+    },
+    "owner": "stewied"
   }
 }

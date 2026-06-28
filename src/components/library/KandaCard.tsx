@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Image, Pressable, View } from 'react-native';
 
 import { Typography } from '@/components/ui/Typography';
@@ -10,7 +11,7 @@ type KandaCardProps = {
   compact?: boolean;
 };
 
-export function KandaCard({ kanda, progress, onPress, compact = false }: KandaCardProps) {
+export const KandaCard = memo(function KandaCard({ kanda, progress, onPress, compact = false }: KandaCardProps) {
   const progressPercent = Math.round(progress * 100);
 
   return (
@@ -61,4 +62,4 @@ export function KandaCard({ kanda, progress, onPress, compact = false }: KandaCa
       </View>
     </Pressable>
   );
-}
+});

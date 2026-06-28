@@ -16,6 +16,7 @@ import { Typography } from '@/components/ui/Typography';
 import { APP_NAME, APP_TAGLINE } from '@/constants/kandas';
 import { THEME_COLORS } from '@/constants/theme';
 import { useDrawer } from '@/hooks/useDrawer';
+import { useCurrentHref } from '@/hooks/useCurrentHref';
 import { openScreen, openTab } from '@/lib/navigation';
 import { routes } from '@/lib/routes';
 import type { Href } from 'expo-router';
@@ -79,6 +80,7 @@ const styles = StyleSheet.create({
 export function MenuDrawer() {
   const { isOpen, closeDrawer } = useDrawer();
   const insets = useSafeAreaInsets();
+  const currentHref = useCurrentHref();
   const [mounted, setMounted] = useState(false);
   const progress = useSharedValue(0);
 
@@ -126,7 +128,7 @@ export function MenuDrawer() {
       openTab(item.href);
       return;
     }
-    openScreen(item.href);
+    openScreen(item.href, { returnTo: currentHref });
   }
 
   if (!mounted) return null;

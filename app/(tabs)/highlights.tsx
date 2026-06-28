@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Alert, InteractionManager, Pressable, ScrollView, View } from 'react-native';
 
 import { BackLink } from '@/components/layout/BackLink';
 import { ScreenShell } from '@/components/layout/ScreenShell';
@@ -7,6 +7,7 @@ import { Divider } from '@/components/ui/Divider';
 import { NotePromptModal } from '@/components/ui/NotePromptModal';
 import { Typography } from '@/components/ui/Typography';
 import { KANDAS } from '@/constants/kandas';
+import { THEME_COLORS } from '@/constants/theme';
 import { useHighlights } from '@/hooks/useHighlights';
 import { openChapter } from '@/lib/navigation';
 import { routes } from '@/lib/routes';
@@ -15,6 +16,7 @@ import type { Highlight } from '@/types/highlight';
 export default function HighlightsScreen() {
   const { highlights, removeHighlight, updateNote } = useHighlights();
   const [noteTarget, setNoteTarget] = useState<Highlight | null>(null);
+  const [openingId, setOpeningId] = useState<string | null>(null);
 
   function confirmRemove(item: Highlight) {
     Alert.alert('Remove highlight?', item.excerpt.slice(0, 80), [
@@ -25,6 +27,19 @@ export default function HighlightsScreen() {
         onPress: () => removeHighlight(item.id),
       },
     ]);
+  }
+
+  function openHighlight(item: Highlight) {
+    if (openingId) return;
+
+    setOpeningId(item.id);
+    InteractionManager.runAfterInteractions(() => {
+      openChapter(item.kanda, item.sarga, {
+        returnTo: routes.highlights,
+        blockIndex: item.blockIndex,
+      });
+      setOpeningId(null);
+    });
   }
 
   return (
@@ -52,23 +67,32 @@ export default function HighlightsScreen() {
           <View className="gap-3">
             {highlights.map((item) => {
               const kandaName = KANDAS.find((k) => k.id === item.kanda)?.name ?? item.kanda;
+              const isOpening = openingId === item.id;
+
               return (
                 <View
                   key={item.id}
                   className="border border-outline-variant bg-surface-low px-4 py-4"
                 >
-                  <Pressable onPress={() => openChapter(item.kanda, item.sarga)}>
-                    <Typography variant="label-sm" className="normal-case tracking-normal">
-                      {kandaName} · Ch. {item.sarga} · {item.blockType}
-                    </Typography>
-                    <Typography variant="body" className="mt-2 leading-6">
-                      {item.excerpt}
-                    </Typography>
-                    {item.note ? (
-                      <Typography variant="caption" italic className="mt-2">
-                        Note: {item.note}
-                      </Typography>
-                    ) : null}
+                  <Pressable onPress={() => openHighlight(item)} disabled={isOpening}>
+                    <View className="flex-row items-start justify-between gap-3">
+                      <View className="flex-1">
+                        <Typography variant="label-sm" className="normal-case tracking-normal">
+                          {kandaName} · Ch. {item.sarga} · {item.blockType}
+                        </Typography>
+                        <Typography variant="body" className="mt-2 leading-6">
+                          {item.excerpt}
+                        </Typography>
+                        {item.note ? (
+                          <Typography variant="caption" italic className="mt-2">
+                            Note: {item.note}
+                          </Typography>
+                        ) : null}
+                      </View>
+                      {isOpening ? (
+                        <ActivityIndicator size="small" color={THEME_COLORS.icon} />
+                      ) : null}
+                    </View>
                   </Pressable>
                   <View className="mt-3 flex-row gap-4">
                     <Pressable onPress={() => setNoteTarget(item)}>
@@ -93,8 +117,10 @@ export default function HighlightsScreen() {
         visible={noteTarget !== null}
         title={noteTarget?.note ? 'Edit note' : 'Add note'}
         initialValue={noteTarget?.note ?? ''}
-        onSave={(note) => {
-          if (noteTarget) updateNote(noteTarget.id, note);
+        onSave={async (note) => {
+          if (noteTarget) {
+            await updateNote(noteTarget.id, note);
+          }
         }}
         onClose={() => setNoteTarget(null)}
       />

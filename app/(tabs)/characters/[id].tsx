@@ -30,12 +30,14 @@ export default function CharacterDetailScreen() {
       <StackHeader title={character.name} fallback={routes.characters} />
 
       <ScrollView className="flex-1" contentContainerClassName="pb-10">
-        <Image
-          source={character.image}
-          className="h-80 w-full"
-          resizeMode="cover"
-          accessibilityLabel={character.name}
-        />
+        <View className="h-80 w-full overflow-hidden">
+          <Image
+            source={character.image}
+            className="h-full w-full"
+            resizeMode="cover"
+            accessibilityLabel={character.name}
+          />
+        </View>
 
         <View className="px-5 pt-6">
           <Typography variant="label-sm">{ROLE_LABELS[character.role]}</Typography>
@@ -75,7 +77,11 @@ export default function CharacterDetailScreen() {
           <View className="mt-6">
             <Button
               label={`Read ${kandaName}`}
-              onPress={() => openChapter(character.kanda, character.startSarga)}
+              onPress={() =>
+                openChapter(character.kanda, character.startSarga, {
+                  returnTo: routes.character(character.id),
+                })
+              }
             />
           </View>
         </View>

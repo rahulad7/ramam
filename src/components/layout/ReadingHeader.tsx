@@ -8,23 +8,31 @@ import { KANDAS } from '@/constants/kandas';
 import { THEME_COLORS } from '@/constants/theme';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { useHardwareBack } from '@/hooks/useHardwareBack';
-import { goBack } from '@/lib/navigation';
+import { navigateToParent } from '@/lib/navigation';
 import { routes } from '@/lib/routes';
 import type { TKanda } from '@/types/content';
 
 type ReadingHeaderProps = {
   kanda: TKanda;
   sarga: string;
+  returnTo?: string;
   onShare?: () => void;
+  onBack?: () => void;
 };
 
-export function ReadingHeader({ kanda, sarga, onShare }: ReadingHeaderProps) {
+export function ReadingHeader({ kanda, sarga, returnTo, onShare, onBack }: ReadingHeaderProps) {
   const insets = useSafeAreaInsets();
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const saved = isBookmarked(kanda, sarga);
   const kandaName = KANDAS.find((item) => item.id === kanda)?.name ?? kanda;
 
-  const handleBack = useCallback(() => goBack(routes.kanda(kanda)), [kanda]);
+  const handleBack = useCallback(() => {
+    if (onBack) {
+      onBack();
+      return;
+    }
+    navigateToParent(routes.kanda(kanda), returnTo);
+  }, [kanda, onBack, returnTo]);
 
   useHardwareBack(handleBack);
 

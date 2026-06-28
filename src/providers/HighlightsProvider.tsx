@@ -2,7 +2,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { STORAGE_KEYS } from '@/constants/storage';
-import { getSarga } from '@/lib/content';
 import type { Highlight } from '@/types/highlight';
 import type { TKanda } from '@/types/content';
 import { stripHtml } from '@/utils/html';
@@ -40,45 +39,59 @@ export function HighlightsProvider({ children }: { children: ReactNode }) {
     load();
   }, []);
 
-  const persist = useCallback(async (next: Highlight[]) => {
-    setHighlights(next);
-    await AsyncStorage.setItem(STORAGE_KEYS.HIGHLIGHTS, JSON.stringify(next));
+  const commitHighlights = useCallback((updater: (prev: Highlight[]) => Highlight[]) => {
+    setHighlights((prev) => {
+      const next = updater(prev);
+      if (next === prev) return prev;
+      void AsyncStorage.setItem(STORAGE_KEYS.HIGHLIGHTS, JSON.stringify(next));
+      return next;
+    });
   }, []);
 
   const addHighlight = useCallback(
     async (input: Omit<Highlight, 'id' | 'createdAt' | 'excerpt'> & { text: string }) => {
       const id = highlightId(input.kanda, input.sarga, input.blockIndex);
-      if (highlights.some((item) => item.id === id)) return;
+      const excerpt = stripHtml(input.text).slice(0, 220);
+      const createdAt = new Date().toISOString();
 
-      const chapter = getSarga(input.kanda, input.sarga);
-      const next: Highlight = {
-        id,
-        kanda: input.kanda,
-        sarga: input.sarga,
-        blockIndex: input.blockIndex,
-        blockType: input.blockType,
-        excerpt: stripHtml(input.text).slice(0, 220),
-        note: input.note,
-        createdAt: new Date().toISOString(),
-      };
+      commitHighlights((prev) => {
+        if (prev.some((item) => item.id === id)) return prev;
 
-      await persist([next, ...highlights]);
+        return [
+          {
+            id,
+            kanda: input.kanda,
+            sarga: input.sarga,
+            blockIndex: input.blockIndex,
+            blockType: input.blockType,
+            excerpt,
+            note: input.note,
+            createdAt,
+          },
+          ...prev,
+        ];
+      });
     },
-    [highlights, persist]
+    [commitHighlights]
   );
 
   const removeHighlight = useCallback(
     async (id: string) => {
-      await persist(highlights.filter((item) => item.id !== id));
+      commitHighlights((prev) => prev.filter((item) => item.id !== id));
     },
-    [highlights, persist]
+    [commitHighlights]
   );
 
   const updateNote = useCallback(
     async (id: string, note: string) => {
-      await persist(highlights.map((item) => (item.id === id ? { ...item, note } : item)));
+      const trimmed = note.trim();
+      commitHighlights((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, note: trimmed || undefined } : item
+        )
+      );
     },
-    [highlights, persist]
+    [commitHighlights]
   );
 
   const isHighlighted = useCallback(

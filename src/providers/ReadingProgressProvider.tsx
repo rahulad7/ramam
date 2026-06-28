@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { STORAGE_KEYS } from '@/constants/storage';
 import type { TKanda } from '@/types/content';
@@ -26,7 +26,7 @@ type ReadingProgressContextValue = {
   setLastRead: (kanda: TKanda, sarga: string) => Promise<void>;
   getKandaProgress: (kanda: TKanda, chapterCount: number) => number;
   getOverallProgress: (totalChapters: number) => number;
-  saveScrollOffset: (kanda: TKanda, sarga: string, offset: number) => Promise<void>;
+  saveScrollOffset: (kanda: TKanda, sarga: string, offset: number) => void;
   getScrollOffset: (kanda: TKanda, sarga: string) => number;
   markChapterOpened: (kanda: TKanda, sarga: string) => Promise<void>;
   stats: ReadingStats;
@@ -51,6 +51,8 @@ export function ReadingProgressProvider({ children }: { children: ReactNode }) {
   const [streakDays, setStreakDays] = useState(0);
   const [lastReadDate, setLastReadDate] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const scrollPersistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scrollOffsetsRef = useRef<ScrollOffsetMap>({});
 
   useEffect(() => {
     async function loadProgress() {
@@ -65,7 +67,11 @@ export function ReadingProgressProvider({ children }: { children: ReactNode }) {
 
         if (lastRaw) setLastReadState(JSON.parse(lastRaw) as LastRead);
         if (kandaRaw) setKandaProgress(JSON.parse(kandaRaw) as KandaProgressMap);
-        if (scrollRaw) setScrollOffsets(JSON.parse(scrollRaw) as ScrollOffsetMap);
+        if (scrollRaw) {
+          const parsed = JSON.parse(scrollRaw) as ScrollOffsetMap;
+          setScrollOffsets(parsed);
+          scrollOffsetsRef.current = parsed;
+        }
         if (openedRaw) setOpenedChapters(JSON.parse(openedRaw) as OpenedChaptersMap);
         if (streakRaw) {
           const parsed = JSON.parse(streakRaw) as { streakDays: number; lastReadDate: string | null };
@@ -135,15 +141,25 @@ export function ReadingProgressProvider({ children }: { children: ReactNode }) {
     [openedChapters, updateStreak]
   );
 
-  const saveScrollOffset = useCallback(
-    async (kanda: TKanda, sarga: string, offset: number) => {
-      const key = chapterKey(kanda, sarga);
-      const updated = { ...scrollOffsets, [key]: offset };
-      setScrollOffsets(updated);
-      await AsyncStorage.setItem(STORAGE_KEYS.SCROLL_OFFSETS, JSON.stringify(updated));
-    },
-    [scrollOffsets]
-  );
+  const saveScrollOffset = useCallback((kanda: TKanda, sarga: string, offset: number) => {
+    const key = chapterKey(kanda, sarga);
+    setScrollOffsets((prev) => {
+      const updated = { ...prev, [key]: offset };
+      scrollOffsetsRef.current = updated;
+      return updated;
+    });
+
+    if (scrollPersistTimer.current) {
+      clearTimeout(scrollPersistTimer.current);
+    }
+
+    scrollPersistTimer.current = setTimeout(() => {
+      void AsyncStorage.setItem(
+        STORAGE_KEYS.SCROLL_OFFSETS,
+        JSON.stringify(scrollOffsetsRef.current)
+      );
+    }, 450);
+  }, []);
 
   const getScrollOffset = useCallback(
     (kanda: TKanda, sarga: string) => scrollOffsets[chapterKey(kanda, sarga)] ?? 0,
